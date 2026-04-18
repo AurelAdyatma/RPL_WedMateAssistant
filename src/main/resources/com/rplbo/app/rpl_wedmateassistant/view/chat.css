@@ -1,0 +1,321 @@
+/* ═══════════════════════════════════════════════════════════════
+   chat.css — WedMate Assistant Chat Stylesheet
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Root & General ─────────────────────────────────────────── */
+.chat-root {
+    -fx-background-color: #1A1A2E;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.sidebar {
+    -fx-background-color: #16213E;
+    -fx-min-width: 220px;
+    -fx-max-width: 260px;
+}
+
+.sidebar-header {
+    -fx-background-color: #0F3460;
+    -fx-padding: 16 14 16 14;
+    -fx-spacing: 8;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.sidebar-header-title {
+    -fx-text-fill: #F5F5F5;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.sidebar-new-btn {
+    -fx-background-color: #A0522D;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-padding: 5 10 5 10;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(160,82,45,0.5), 6, 0, 0, 2);
+}
+
+.sidebar-new-btn:hover {
+    -fx-background-color: #8B4513;
+}
+
+.session-list {
+    -fx-background-color: transparent;
+    -fx-padding: 6 0 6 0;
+}
+
+.session-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #B0B8C8;
+    -fx-font-size: 13px;
+    -fx-padding: 10 14 10 14;
+    -fx-border-color: transparent transparent #1E2D4A transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
+}
+
+.session-list .list-cell:hover {
+    -fx-background-color: #1E2D4A;
+    -fx-text-fill: #FFFFFF;
+}
+
+.session-list .list-cell:selected {
+    -fx-background-color: #0F3460;
+    -fx-text-fill: #F0A070;
+    -fx-font-weight: bold;
+}
+
+/* ── Chat Area ───────────────────────────────────────────────── */
+.chat-area {
+    -fx-background-color: #1A1A2E;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.chat-header {
+    -fx-background-color: #0F3460;
+    -fx-padding: 14 18 14 18;
+    -fx-spacing: 12;
+    -fx-alignment: CENTER_LEFT;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 8, 0, 0, 2);
+}
+
+.header-avatar {
+    -fx-background-color: #A0522D;
+    -fx-background-radius: 50%;
+    -fx-min-width: 38;
+    -fx-min-height: 38;
+    -fx-max-width: 38;
+    -fx-max-height: 38;
+    -fx-alignment: CENTER;
+}
+
+.header-avatar-label {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+}
+
+.chat-header-title {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.chat-header-status {
+    -fx-text-fill: #7EE8A2;
+    -fx-font-size: 11px;
+}
+
+.header-spacer {
+    -fx-hgrow: ALWAYS;
+}
+
+/* ── ScrollPane & Chat Box ───────────────────────────────────── */
+.chat-scroll {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-background: transparent;
+}
+
+.chat-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.chat-scroll > .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 6;
+}
+
+.chat-scroll > .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(160,82,45,0.4);
+    -fx-background-radius: 3;
+}
+
+.chat-box {
+    -fx-background-color: #1E1E35;
+    -fx-padding: 16 12 8 12;
+    -fx-spacing: 10;
+}
+
+/* ── Bubble Wrapper ──────────────────────────────────────────── */
+.bubble-wrapper-user {
+    -fx-alignment: CENTER_RIGHT;
+    -fx-padding: 2 0 2 60;
+}
+
+.bubble-wrapper-bot {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 2 60 2 0;
+}
+
+/* ── Bubble Content ──────────────────────────────────────────── */
+.bubble-user {
+    -fx-background-color: #A0522D;
+    -fx-background-radius: 18 18 4 18;
+    -fx-padding: 10 14 10 14;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 13.5px;
+    -fx-wrap-text: true;
+    -fx-effect: dropshadow(gaussian, rgba(160,82,45,0.35), 8, 0, 0, 3);
+}
+
+.bubble-bot {
+    -fx-background-color: #2C2C4A;
+    -fx-background-radius: 18 18 18 4;
+    -fx-padding: 10 14 10 14;
+    -fx-text-fill: #E8E8F0;
+    -fx-font-size: 13.5px;
+    -fx-wrap-text: true;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 6, 0, 0, 2);
+}
+
+/* ── Timestamp ───────────────────────────────────────────────── */
+.timestamp-user {
+    -fx-text-fill: #8A8AA0;
+    -fx-font-size: 10px;
+    -fx-padding: 2 4 0 0;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.timestamp-bot {
+    -fx-text-fill: #8A8AA0;
+    -fx-font-size: 10px;
+    -fx-padding: 2 0 0 4;
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* ── Bot avatar dot (kecil di sebelah kiri bubble bot) ───────── */
+.bot-dot {
+    -fx-background-color: #A0522D;
+    -fx-background-radius: 50%;
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+    -fx-max-width: 28;
+    -fx-max-height: 28;
+    -fx-alignment: CENTER;
+}
+
+.bot-dot-label {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+}
+
+/* ── Quick Reply Buttons ─────────────────────────────────────── */
+.quick-reply-box {
+    -fx-padding: 8 12 4 12;
+    -fx-spacing: 8;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-color: transparent;
+}
+
+.quick-reply-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: #A0522D;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-text-fill: #F0A070;
+    -fx-font-size: 12px;
+    -fx-padding: 6 14 6 14;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(160,82,45,0.2), 4, 0, 0, 1);
+}
+
+.quick-reply-btn:hover {
+    -fx-background-color: #A0522D;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(160,82,45,0.5), 8, 0, 0, 2);
+}
+
+/* ── Input Bar ───────────────────────────────────────────────── */
+.input-area {
+    -fx-background-color: #16213E;
+    -fx-padding: 10 14 10 14;
+    -fx-spacing: 10;
+    -fx-alignment: CENTER;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 6, 0, -2, 0);
+}
+
+.chat-input {
+    -fx-background-color: #2C2C4A;
+    -fx-text-fill: #E8E8F0;
+    -fx-prompt-text-fill: #6A6A8A;
+    -fx-font-size: 14px;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 24;
+    -fx-border-color: #3A3A5A;
+    -fx-border-radius: 24;
+    -fx-border-width: 1.5;
+}
+
+.chat-input:focused {
+    -fx-border-color: #A0522D;
+    -fx-effect: dropshadow(gaussian, rgba(160,82,45,0.3), 8, 0, 0, 0);
+}
+
+.btn-send {
+    -fx-background-color: #A0522D;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-min-width: 44;
+    -fx-min-height: 44;
+    -fx-max-width: 44;
+    -fx-max-height: 44;
+    -fx-background-radius: 50%;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(160,82,45,0.5), 8, 0, 0, 3);
+}
+
+.btn-send:hover {
+    -fx-background-color: #8B4513;
+    -fx-effect: dropshadow(gaussian, rgba(160,82,45,0.7), 12, 0, 0, 4);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.btn-send:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+}
+
+/* ── Typing Indicator ────────────────────────────────────────── */
+.typing-label {
+    -fx-text-fill: #8A8AA0;
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+    -fx-padding: 0 0 0 12;
+}
+
+/* ── Divider (SplitPane) ─────────────────────────────────────── */
+.split-pane {
+    -fx-background-color: #1A1A2E;
+    -fx-padding: 0;
+}
+
+.split-pane > .split-pane-divider {
+    -fx-background-color: #0F3460;
+    -fx-pref-width: 2;
+}
+
+/* ── Scrollbar Global ────────────────────────────────────────── */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgba(160,82,45,0.3);
+    -fx-background-radius: 3;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+}

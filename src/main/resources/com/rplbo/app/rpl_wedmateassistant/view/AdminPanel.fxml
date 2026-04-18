@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+    AdminPanel.fxml — Panel manajemen data untuk Admin WedMate Assistant.
+    Controller: com.rplbo.app.rpl_wedmateassistant.controller.AdminController
+-->
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.AdminController"
+            styleClass="admin-root">
+
+    <!-- Sidebar navigasi -->
+    <left>
+        <VBox spacing="8" styleClass="admin-sidebar">
+            <Label text="Admin Panel" styleClass="sidebar-title"/>
+            <Button text="Knowledge Base" styleClass="sidebar-btn"/>
+            <Button text="Pakaian Wedding" styleClass="sidebar-btn"/>
+            <Button text="Paket Sewa"      styleClass="sidebar-btn"/>
+        </VBox>
+    </left>
+
+    <!-- Konten utama -->
+    <center>
+        <VBox spacing="12" styleClass="admin-content">
+
+            <!-- Toolbar -->
+            <HBox spacing="8" styleClass="admin-toolbar">
+                <TextField fx:id="txtCari" promptText="Cari..." HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnTambah" text="+ Tambah" onAction="#handleTambah" styleClass="btn-primary"/>
+                <Button fx:id="btnEdit"   text="Edit"     onAction="#handleEdit"   styleClass="btn-secondary"/>
+                <Button fx:id="btnHapus"  text="Hapus"    onAction="#handleHapus"  styleClass="btn-danger"/>
+            </HBox>
+
+            <!-- Tabel Knowledge Base -->
+            <TitledPane text="Knowledge Base" expanded="true">
+                <TableView fx:id="tableKnowledge" styleClass="admin-table"/>
+            </TitledPane>
+
+            <!-- Tabel Pakaian -->
+            <TitledPane text="Pakaian Wedding" expanded="false">
+                <TableView fx:id="tablePakaian" styleClass="admin-table"/>
+            </TitledPane>
+
+            <!-- Tabel Paket -->
+            <TitledPane text="Paket Sewa" expanded="false">
+                <TableView fx:id="tablePaket" styleClass="admin-table"/>
+            </TitledPane>
+
+        </VBox>
+    </center>
+
+</BorderPane>

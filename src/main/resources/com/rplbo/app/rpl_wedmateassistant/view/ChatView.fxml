@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<!--
+    ChatView.fxml — Tampilan percakapan utama WedMate Assistant.
+
+    Layout:
+    ┌─────────────┬──────────────────────────────────────────┐
+    │  SIDEBAR    │  HEADER (nama bot + status online)       │
+    │  ─────────  ├──────────────────────────────────────────┤
+    │  Sesi 1     │  ScrollPane > VBox chatBox (bubbles)     │
+    │  Sesi 2     │                                          │
+    │  ...        ├──────────────────────────────────────────┤
+    │  [+ Baru]   │  [Quick Reply Buttons]                   │
+    │             ├──────────────────────────────────────────┤
+    │             │  [TextField input]  [Kirim ▶]            │
+    └─────────────┴──────────────────────────────────────────┘
+
+    Controller: com.rplbo.app.rpl_wedmateassistant.controller.ChatController
+    Stylesheet : chat.css
+-->
+<SplitPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.ChatController"
+           fx:id="splitPane"
+           dividerPositions="0.24"
+           styleClass="split-pane"
+           stylesheets="@chat.css">
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- KIRI: Sidebar daftar sesi                             -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <VBox styleClass="sidebar" SplitPane.resizableWithParent="false">
+
+        <!-- Header sidebar -->
+        <HBox styleClass="sidebar-header" alignment="CENTER_LEFT" spacing="8">
+            <Label text="💬 Riwayat Chat" styleClass="sidebar-header-title" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnSesiBar" text="+ Baru"
+                    onAction="#handleSesiBar"
+                    styleClass="sidebar-new-btn"/>
+        </HBox>
+
+        <!-- Daftar sesi -->
+        <ListView fx:id="listSesi"
+                  styleClass="session-list"
+                  VBox.vgrow="ALWAYS"
+                  onMouseClicked="#handlePilihSesi"/>
+
+    </VBox>
+
+    <!-- ══════════════════════════════════════════════════════ -->
+    <!-- KANAN: Area percakapan                                -->
+    <!-- ══════════════════════════════════════════════════════ -->
+    <BorderPane styleClass="chat-area">
+
+        <!-- ── ATAS: Header bot ──────────────────────────── -->
+        <top>
+            <HBox styleClass="chat-header" alignment="CENTER_LEFT" spacing="12">
+                <!-- Avatar lingkaran -->
+                <StackPane styleClass="header-avatar">
+                    <Label text="💍" styleClass="header-avatar-label"/>
+                </StackPane>
+
+                <!-- Nama + status -->
+                <VBox spacing="2" alignment="CENTER_LEFT">
+                    <Label text="WedMate Assistant" styleClass="chat-header-title"/>
+                    <Label fx:id="lblStatus" text="● Online" styleClass="chat-header-status"/>
+                </VBox>
+
+                <!-- Spacer -->
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Tombol hapus sesi -->
+                <Button fx:id="btnHapusSesi"
+                        text="🗑 Hapus Sesi"
+                        onAction="#handleHapusSesi"
+                        styleClass="quick-reply-btn"/>
+            </HBox>
+        </top>
+
+        <!-- ── TENGAH: Area chat (bubble) ────────────────── -->
+        <center>
+            <ScrollPane fx:id="scrollChat"
+                        fitToWidth="true"
+                        styleClass="chat-scroll"
+                        pannable="true"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED">
+                <VBox fx:id="chatBox"
+                      styleClass="chat-box"
+                      fillWidth="true"
+                      spacing="10"/>
+            </ScrollPane>
+        </center>
+
+        <!-- ── BAWAH: Quick Reply + Input bar ────────────── -->
+        <bottom>
+            <VBox>
+                <!-- Quick reply buttons (ditampilkan/disembunyikan lewat controller) -->
+                <HBox fx:id="quickReplyBox"
+                      styleClass="quick-reply-box"
+                      spacing="8"
+                      alignment="CENTER_LEFT"
+                      managed="true"
+                      visible="false"/>
+
+                <!-- Input bar -->
+                <HBox styleClass="input-area"
+                      spacing="10"
+                      alignment="CENTER">
+                    <TextField fx:id="txtInput"
+                               promptText="Ketik pertanyaan Anda..."
+                               styleClass="chat-input"
+                               onAction="#handleKirimPesan"
+                               HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnKirim"
+                            text="➤"
+                            onAction="#handleKirimPesan"
+                            styleClass="btn-send"/>
+                </HBox>
+            </VBox>
+        </bottom>
+
+    </BorderPane>
+
+</SplitPane>

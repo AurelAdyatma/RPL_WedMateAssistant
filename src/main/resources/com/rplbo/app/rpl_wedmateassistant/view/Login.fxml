@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+
+<!--
+    Login.fxml — Tampilan halaman login WedMate Assistant.
+    Controller: com.rplbo.app.rpl_wedmateassistant.controller.LoginController
+-->
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.LoginController"
+      alignment="CENTER"
+      spacing="16"
+      styleClass="login-root">
+
+    <!-- Logo / Judul -->
+    <Label text="💍 WedMate Assistant" styleClass="login-title"/>
+
+    <!-- Form Login -->
+    <VBox spacing="10" styleClass="login-form">
+        <TextField fx:id="txtUsername" promptText="Username" styleClass="login-field"/>
+        <PasswordField fx:id="txtPassword" promptText="Password" styleClass="login-field"/>
+        <Label fx:id="lblError" styleClass="login-error" visible="false"/>
+        <Button fx:id="btnLogin" text="Masuk" onAction="#handleLogin" styleClass="btn-primary"/>
+    </VBox>
+
+</VBox>
