@@ -15,11 +15,11 @@ public class HelloApplication extends Application {
         DatabaseManager.getInstance().initDB();
 
         FXMLLoader fxmlLoader = new FXMLLoader(
-                HelloApplication.class.getResource("/com/rplbo/app/rpl_wedmateassistant/view/Login.fxml")
+                HelloApplication.class.getResource("/com/rplbo/app/rpl_wedmateassistant/view/Welcome.fxml")
         );
 
-        Scene scene = new Scene(fxmlLoader.load(), 800, 500);
-        stage.setTitle("WedMate Assistant");
+        Scene scene = new Scene(fxmlLoader.load(), 900, 600);
+        stage.setTitle("Welcome to WedMate");
         stage.setScene(scene);
         stage.centerOnScreen();
         stage.show();
