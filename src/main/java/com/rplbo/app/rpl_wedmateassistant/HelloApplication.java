@@ -9,14 +9,19 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class HelloApplication extends Application {
+
     @Override
     public void start(Stage stage) throws IOException {
         DatabaseManager.getInstance().initDB();
-        
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/rplbo/app/rpl_wedmateassistant/view/Welcome.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 900, 600);
-        stage.setTitle("Welcome to WedMate");
+
+        FXMLLoader fxmlLoader = new FXMLLoader(
+                HelloApplication.class.getResource("/com/rplbo/app/rpl_wedmateassistant/view/Login.fxml")
+        );
+
+        Scene scene = new Scene(fxmlLoader.load(), 800, 500);
+        stage.setTitle("WedMate Assistant");
         stage.setScene(scene);
+        stage.centerOnScreen();
         stage.show();
     }
 
