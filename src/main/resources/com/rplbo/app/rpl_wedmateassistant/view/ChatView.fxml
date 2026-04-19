@@ -27,57 +27,53 @@
            fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.ChatController"
            fx:id="splitPane"
            dividerPositions="0.24"
-           styleClass="split-pane"
-           stylesheets="@chat.css">
+           styleClass="split-pane">
 
     <!-- ══════════════════════════════════════════════════════ -->
-    <!-- KIRI: Sidebar daftar sesi                             -->
+    <!-- KIRI: Sidebar (Static Info)                           -->
     <!-- ══════════════════════════════════════════════════════ -->
-    <VBox styleClass="sidebar" SplitPane.resizableWithParent="false">
+    <VBox alignment="CENTER" SplitPane.resizableWithParent="false" style="-fx-background-color: #FFFFFF; -fx-padding: 20;">
+        <VBox style="-fx-background-color: #FFF7F2; -fx-border-color: #E2C0A5; -fx-border-width: 1.5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 24; -fx-spacing: 12;" maxWidth="260">
+            
+            <!-- Icon Box -->
+            <StackPane style="-fx-background-color: linear-gradient(to bottom, #B66B4B 35%, #E2AE94 35%); -fx-background-radius: 8; -fx-min-width: 48; -fx-min-height: 44; -fx-max-width: 48; -fx-max-height: 44;" alignment="BOTTOM_CENTER">
+                <Label text="&lt; &gt;" style="-fx-text-fill: #924B2C; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 0 0 6 0;"/>
+            </StackPane>
 
-        <!-- Header sidebar -->
-        <HBox styleClass="sidebar-header" alignment="CENTER_LEFT" spacing="8">
-            <Label text="💬 Riwayat Chat" styleClass="sidebar-header-title" HBox.hgrow="ALWAYS"/>
-            <Button fx:id="btnSesiBar" text="+ Baru"
-                    onAction="#handleSesiBar"
-                    styleClass="sidebar-new-btn"/>
-        </HBox>
+            <!-- Title -->
+            <Label text="WedMate" style="-fx-text-fill: #2E3A3F; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 8 0 0 0;"/>
 
-        <!-- Daftar sesi -->
-        <ListView fx:id="listSesi"
-                  styleClass="session-list"
-                  VBox.vgrow="ALWAYS"
-                  onMouseClicked="#handlePilihSesi"/>
+            <!-- Description -->
+            <Label text="WedMate Chatbot, your weding asistant mate." wrapText="true" style="-fx-text-fill: #829587; -fx-font-size: 14px; -fx-line-spacing: 5;"/>
 
+            <!-- Link/Action -->
+            <Label text="Kunjungi WedMate" style="-fx-text-fill: #C3795B; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 16 0 0 0;"/>
+
+        </VBox>
     </VBox>
 
     <!-- ══════════════════════════════════════════════════════ -->
     <!-- KANAN: Area percakapan                                -->
     <!-- ══════════════════════════════════════════════════════ -->
-    <BorderPane styleClass="chat-area">
+    <BorderPane style="-fx-background-color: #F8FAFC;">
 
         <!-- ── ATAS: Header bot ──────────────────────────── -->
         <top>
-            <HBox styleClass="chat-header" alignment="CENTER_LEFT" spacing="12">
+            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: #FFFFFF; -fx-padding: 15 25; -fx-border-color: #E2E8F0; -fx-border-width: 0 0 1 0;">
                 <!-- Avatar lingkaran -->
-                <StackPane styleClass="header-avatar">
-                    <Label text="💍" styleClass="header-avatar-label"/>
+                <StackPane style="-fx-background-color: #FFF2E8; -fx-background-radius: 25; -fx-min-width: 45; -fx-min-height: 45;">
+                    <Label text="💍" style="-fx-font-size: 20px;"/>
                 </StackPane>
 
                 <!-- Nama + status -->
                 <VBox spacing="2" alignment="CENTER_LEFT">
-                    <Label text="WedMate Assistant" styleClass="chat-header-title"/>
-                    <Label fx:id="lblStatus" text="● Online" styleClass="chat-header-status"/>
+                    <Label text="WedMate Assistant" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
+                    <Label fx:id="lblStatus" text="● Online" style="-fx-font-size: 12px; -fx-text-fill: #22C55E;"/>
                 </VBox>
 
                 <!-- Spacer -->
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <!-- Tombol hapus sesi -->
-                <Button fx:id="btnHapusSesi"
-                        text="🗑 Hapus Sesi"
-                        onAction="#handleHapusSesi"
-                        styleClass="quick-reply-btn"/>
             </HBox>
         </top>
 
@@ -85,41 +81,39 @@
         <center>
             <ScrollPane fx:id="scrollChat"
                         fitToWidth="true"
-                        styleClass="chat-scroll"
+                        style="-fx-background-color: transparent; -fx-padding: 10;"
                         pannable="true"
                         hbarPolicy="NEVER"
                         vbarPolicy="AS_NEEDED">
                 <VBox fx:id="chatBox"
-                      styleClass="chat-box"
-                      fillWidth="true"
-                      spacing="10"/>
+                      style="-fx-padding: 20 30; -fx-spacing: 20; -fx-background-color: #F8FAFC;"
+                      fillWidth="true"/>
             </ScrollPane>
         </center>
 
         <!-- ── BAWAH: Quick Reply + Input bar ────────────── -->
         <bottom>
-            <VBox>
+            <VBox style="-fx-background-color: #FFFFFF; -fx-padding: 15 25; -fx-border-color: #E2E8F0; -fx-border-width: 1 0 0 0;">
                 <!-- Quick reply buttons (ditampilkan/disembunyikan lewat controller) -->
                 <HBox fx:id="quickReplyBox"
-                      styleClass="quick-reply-box"
-                      spacing="8"
+                      spacing="10"
                       alignment="CENTER_LEFT"
                       managed="true"
-                      visible="false"/>
+                      visible="false"
+                      style="-fx-padding: 0 0 15 0;"/>
 
                 <!-- Input bar -->
-                <HBox styleClass="input-area"
-                      spacing="10"
+                <HBox spacing="15"
                       alignment="CENTER">
                     <TextField fx:id="txtInput"
-                               promptText="Ketik pertanyaan Anda..."
-                               styleClass="chat-input"
+                               promptText="Ketik pesan Anda di sini..."
+                               style="-fx-background-color: #F1F5F9; -fx-background-radius: 25; -fx-padding: 12 20; -fx-font-size: 14px;"
                                onAction="#handleKirimPesan"
                                HBox.hgrow="ALWAYS"/>
                     <Button fx:id="btnKirim"
-                            text="➤"
+                            text="Kirim ➔"
                             onAction="#handleKirimPesan"
-                            styleClass="btn-send"/>
+                            style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;"/>
                 </HBox>
             </VBox>
         </bottom>

@@ -44,9 +44,8 @@ public class LoginController {
             if (username.equals("admin") && password.equals("admin")) {
                 loadView("/com/rplbo/app/rpl_wedmateassistant/view/AdminPanel.fxml", "Admin Panel");
             } else {
-                // Mock user for now
-                User mockUser = new User(1, username, password, "Pengguna " + username, username + "@example.com", "08123456789");
-                loadChatView(mockUser);
+                lblError.setText("Username atau Password salah!");
+                lblError.setVisible(true);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -62,20 +61,6 @@ public class LoginController {
         Scene scene = new Scene(root, 800, 600);
         stage.setScene(scene);
         stage.setTitle(title);
-        stage.show();
-    }
-    
-    private void loadChatView(User user) throws IOException {
-        Stage stage = (Stage) btnLogin.getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/rplbo/app/rpl_wedmateassistant/view/ChatView.fxml"));
-        Parent root = loader.load();
-        
-        ChatController chatController = loader.getController();
-        chatController.setUserLogin(user);
-        
-        Scene scene = new Scene(root, 800, 600);
-        stage.setScene(scene);
-        stage.setTitle("WedMate Assistant");
         stage.show();
     }
 }

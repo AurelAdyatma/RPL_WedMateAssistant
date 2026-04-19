@@ -43,9 +43,6 @@ public class ChatController {
     // ── FXML Injections ───────────────────────────────────────────────────────
 
     @FXML private SplitPane     splitPane;
-    @FXML private ListView<String> listSesi;
-    @FXML private Button        btnSesiBar;
-    @FXML private Button        btnHapusSesi;
 
     @FXML private ScrollPane    scrollChat;
     @FXML private VBox          chatBox;
@@ -65,8 +62,7 @@ public class ChatController {
     /** Sesi yang sedang aktif ditampilkan. */
     private Sesi sesiAktif;
 
-    /** Daftar semua sesi dalam run ini. */
-    private final List<Sesi> daftarSesi = new ArrayList<>();
+
 
     /** User yang sedang login (di-inject dari LoginController). */
     private User userLogin;
@@ -159,64 +155,16 @@ public class ChatController {
         jeda.play();
     }
 
-    /** Membuat sesi chat baru dari sidebar. */
-    @FXML
-    private void handleSesiBar() {
-        buatSesiBaru();
-        tampilkanSalamAwal();
 
-        Notifications.create()
-            .title("Sesi Baru Dibuat")
-            .text("Percakapan baru dimulai 💬")
-            .showInformation();
-    }
-
-    /** Memilih sesi dari sidebar (tampilkan ulang riwayat). */
-    @FXML
-    private void handlePilihSesi() {
-        int idx = listSesi.getSelectionModel().getSelectedIndex();
-        if (idx < 0 || idx >= daftarSesi.size()) return;
-        if (daftarSesi.get(idx) == sesiAktif) return;
-
-        sesiAktif = daftarSesi.get(idx);
-        muatUlangSesi(sesiAktif);
-    }
-
-    /** Menghapus sesi yang sedang aktif. */
-    @FXML
-    private void handleHapusSesi() {
-        if (daftarSesi.size() <= 1) {
-            Notifications.create()
-                .title("Tidak Bisa Hapus")
-                .text("Minimal satu sesi harus ada.")
-                .showWarning();
-            return;
-        }
-
-        int idx = daftarSesi.indexOf(sesiAktif);
-        daftarSesi.remove(sesiAktif);
-        listSesi.getItems().remove(idx);
-
-        // Pilih sesi sebelumnya atau berikutnya
-        int newIdx = Math.max(0, idx - 1);
-        sesiAktif = daftarSesi.get(newIdx);
-        listSesi.getSelectionModel().select(newIdx);
-        muatUlangSesi(sesiAktif);
-    }
 
     // ═════════════════════════════════════════════════════════════════════════
     // Private — Sesi Management
     // ═════════════════════════════════════════════════════════════════════════
 
-    /** Membuat sesi baru, menambahkannya ke daftar dan sidebar. */
     private void buatSesiBaru() {
         sesiAktif = new Sesi();
-        sesiAktif.setId(daftarSesi.size() + 1);
+        sesiAktif.setId(1);
         if (userLogin != null) sesiAktif.setUserId(userLogin.getId());
-
-        daftarSesi.add(sesiAktif);
-        listSesi.getItems().add("💬 Sesi " + sesiAktif.getId());
-        listSesi.getSelectionModel().selectLast();
 
         // Bersihkan area chat dan reset quick reply
         chatBox.getChildren().clear();
@@ -226,21 +174,7 @@ public class ChatController {
         quickReplyBox.setManaged(false);
     }
 
-    /** Memuat ulang riwayat pesan sesi ke dalam chatBox. */
-    private void muatUlangSesi(Sesi sesi) {
-        chatBox.getChildren().clear();
-        quickReplyShown = true; // jangan tampilkan quick reply lagi
-        quickReplyBox.setVisible(false);
-        quickReplyBox.setManaged(false);
 
-        for (Pesan p : sesi.getDaftarPesan()) {
-            if (p.isDariBot()) {
-                tambahBubbleBot(p.getIsiPesan(), p.getWaktuKirim());
-            } else {
-                tambahBubbleUser(p.getIsiPesan(), p.getWaktuKirim());
-            }
-        }
-    }
 
     /** Memuat knowledge base dari DB dan inject ke engine. */
     private void muatKnowledgeBase() {
@@ -296,21 +230,21 @@ public class ChatController {
     private void tambahBubbleUser(String teks, LocalDateTime waktu) {
         // Label isi pesan
         Label lblPesan = new Label(teks);
-        lblPesan.getStyleClass().add("bubble-user");
+        lblPesan.setStyle("-fx-background-color: #2E3A3F; -fx-text-fill: white; -fx-padding: 12 18; -fx-background-radius: 16 16 0 16; -fx-font-size: 14px;");
         lblPesan.setMaxWidth(400);
         lblPesan.setWrapText(true);
 
         // Timestamp
         Label lblTime = new Label(waktu != null ? waktu.format(TIME_FMT) : "");
-        lblTime.getStyleClass().add("timestamp-user");
+        lblTime.setStyle("-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-padding: 2 4 0 0;");
 
         // VBox: pesan + timestamp (keduanya rata kanan)
         VBox vBox = new VBox(2, lblPesan, lblTime);
         vBox.setAlignment(Pos.CENTER_RIGHT);
 
-        // Wrapper rata kanan dengan padding kiri 60
+        // Wrapper rata kanan
         HBox wrapper = new HBox(vBox);
-        wrapper.getStyleClass().add("bubble-wrapper-user");
+        wrapper.setStyle("-fx-padding: 0 0 0 50;");
         wrapper.setAlignment(Pos.CENTER_RIGHT);
         HBox.setHgrow(vBox, Priority.SOMETIMES);
 
@@ -324,25 +258,25 @@ public class ChatController {
     private void tambahBubbleBot(String teks, LocalDateTime waktu) {
         // Avatar dot kecil
         StackPane avatar = new StackPane(new Label("💍"));
-        avatar.getStyleClass().add("bot-dot");
+        avatar.setStyle("-fx-background-color: #FFF2E8; -fx-background-radius: 18; -fx-min-width: 36; -fx-min-height: 36;");
 
         // Label isi pesan
         Label lblPesan = new Label(teks);
-        lblPesan.getStyleClass().add("bubble-bot");
+        lblPesan.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #1E293B; -fx-padding: 14 18; -fx-background-radius: 16 16 16 0; -fx-font-size: 14px; -fx-border-color: #E2E8F0; -fx-border-width: 1; -fx-border-radius: 16 16 16 0;");
         lblPesan.setMaxWidth(420);
         lblPesan.setWrapText(true);
 
         // Timestamp
         Label lblTime = new Label(waktu != null ? waktu.format(TIME_FMT) : "");
-        lblTime.getStyleClass().add("timestamp-bot");
+        lblTime.setStyle("-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-padding: 2 0 0 4;");
 
         // VBox: pesan + timestamp
         VBox vBox = new VBox(2, lblPesan, lblTime);
         vBox.setAlignment(Pos.CENTER_LEFT);
 
         // Wrapper rata kiri: avatar + konten
-        HBox wrapper = new HBox(8, avatar, vBox);
-        wrapper.getStyleClass().add("bubble-wrapper-bot");
+        HBox wrapper = new HBox(12, avatar, vBox);
+        wrapper.setStyle("-fx-padding: 0 50 0 0;");
         wrapper.setAlignment(Pos.TOP_LEFT);
 
         chatBox.getChildren().add(wrapper);
@@ -351,7 +285,7 @@ public class ChatController {
     /** Membuat label "WedMate sedang mengetik..." sebagai placeholder. */
     private Label buatTypingLabel() {
         Label lbl = new Label("WedMate sedang mengetik...");
-        lbl.getStyleClass().add("typing-label");
+        lbl.setStyle("-fx-text-fill: #9CA3AF; -fx-font-size: 12px; -fx-font-style: italic; -fx-padding: 0 0 0 48;");
         return lbl;
     }
 
@@ -371,7 +305,7 @@ public class ChatController {
 
         for (String label : QUICK_REPLIES) {
             Button btn = new Button(label);
-            btn.getStyleClass().add("quick-reply-btn");
+            btn.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #D97706; -fx-border-color: #D97706; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 6 15; -fx-font-size: 13px; -fx-cursor: hand;");
             btn.setOnAction(e -> {
                 txtInput.setText(label);
                 handleKirimPesan();

@@ -13,9 +13,9 @@ public class HelloApplication extends Application {
     public void start(Stage stage) throws IOException {
         DatabaseManager.getInstance().initDB();
         
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/rplbo/app/rpl_wedmateassistant/view/Login.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 400, 300);
-        stage.setTitle("WedMate Assistant");
+        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("/com/rplbo/app/rpl_wedmateassistant/view/Welcome.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 900, 600);
+        stage.setTitle("Welcome to WedMate");
         stage.setScene(scene);
         stage.show();
     }

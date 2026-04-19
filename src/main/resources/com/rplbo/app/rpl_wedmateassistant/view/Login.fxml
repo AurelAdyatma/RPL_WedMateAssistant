@@ -13,17 +13,15 @@
       fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.LoginController"
       alignment="CENTER"
       spacing="16"
-      styleClass="login-root">
+      style="-fx-background-color: white;">
 
-    <!-- Logo / Judul -->
-    <Label text="💍 WedMate Assistant" styleClass="login-title"/>
+    <Label text="💍 Login Admin" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
 
-    <!-- Form Login -->
-    <VBox spacing="10" styleClass="login-form">
-        <TextField fx:id="txtUsername" promptText="Username" styleClass="login-field"/>
-        <PasswordField fx:id="txtPassword" promptText="Password" styleClass="login-field"/>
-        <Label fx:id="lblError" styleClass="login-error" visible="false"/>
-        <Button fx:id="btnLogin" text="Masuk" onAction="#handleLogin" styleClass="btn-primary"/>
+    <VBox spacing="15" alignment="CENTER" maxWidth="300" style="-fx-background-color: #F8F9FA; -fx-padding: 30; -fx-background-radius: 8; -fx-border-color: #E2E8F0; -fx-border-radius: 8;">
+        <TextField fx:id="txtUsername" promptText="Username" style="-fx-font-size: 14px; -fx-padding: 10;"/>
+        <PasswordField fx:id="txtPassword" promptText="Password" style="-fx-font-size: 14px; -fx-padding: 10;"/>
+        <Label fx:id="lblError" style="-fx-text-fill: red; -fx-font-size: 12px;" visible="false"/>
+        <Button fx:id="btnLogin" text="Masuk" onAction="#handleLogin" style="-fx-background-color: #111820; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 6;" prefWidth="240"/>
     </VBox>
 
 </VBox>
