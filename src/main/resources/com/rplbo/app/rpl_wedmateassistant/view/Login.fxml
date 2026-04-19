@@ -1,27 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.image.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<!--
-    Login.fxml — Tampilan halaman login WedMate Assistant.
-    Controller: com.rplbo.app.rpl_wedmateassistant.controller.LoginController
--->
-<VBox xmlns="http://javafx.com/javafx/21"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.LoginController"
-      alignment="CENTER"
-      spacing="16"
-      style="-fx-background-color: white;">
+<StackPane xmlns="http://javafx.com/javafx/21"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.LoginController"
+           style="-fx-background-color: #d9e2f2;">
 
-    <Label text="💍 Login Admin" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    <children>
+        <VBox alignment="CENTER"
+              spacing="12"
+              maxWidth="320"
+              prefWidth="320"
+              style="-fx-background-color: white;
+                     -fx-border-color: black;
+                     -fx-border-width: 1;
+                     -fx-padding: 25;">
 
-    <VBox spacing="15" alignment="CENTER" maxWidth="300" style="-fx-background-color: #F8F9FA; -fx-padding: 30; -fx-background-radius: 8; -fx-border-color: #E2E8F0; -fx-border-radius: 8;">
-        <TextField fx:id="txtUsername" promptText="Username" style="-fx-font-size: 14px; -fx-padding: 10;"/>
-        <PasswordField fx:id="txtPassword" promptText="Password" style="-fx-font-size: 14px; -fx-padding: 10;"/>
-        <Label fx:id="lblError" style="-fx-text-fill: red; -fx-font-size: 12px;" visible="false"/>
-        <Button fx:id="btnLogin" text="Masuk" onAction="#handleLogin" style="-fx-background-color: #111820; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 6;" prefWidth="240"/>
-    </VBox>
+            <Label text="WedMate Assistant"
+                   style="-fx-font-size: 20px; -fx-font-weight: bold;" />
 
-</VBox>
+            <TextField fx:id="txtUsername"
+                       promptText="Username"
+                       prefWidth="250"
+                       maxWidth="250"
+                       style="-fx-pref-height: 35;
+                              -fx-background-color: white;
+                              -fx-border-color: black;
+                              -fx-border-width: 1;" />
+
+            <PasswordField fx:id="txtPassword"
+                           promptText="Password"
+                           prefWidth="250"
+                           maxWidth="250"
+                           style="-fx-pref-height: 35;
+                                  -fx-background-color: white;
+                                  -fx-border-color: black;
+                                  -fx-border-width: 1;" />
+
+            <Label fx:id="lblError"
+                   text=""
+                   visible="false"
+                   managed="false"
+                   wrapText="true"
+                   style="-fx-text-fill: red; -fx-font-size: 12px;" />
+
+            <Button fx:id="btnLogin"
+                    text="Masuk"
+                    onAction="#handleLogin"
+                    prefWidth="120"
+                    style="-fx-pref-height: 35;
+                           -fx-background-color: white;
+                           -fx-text-fill: black;
+                           -fx-font-weight: bold;
+                           -fx-border-color: black;
+                           -fx-border-width: 1;" />
+        </VBox>
+    </children>
+</StackPane>
