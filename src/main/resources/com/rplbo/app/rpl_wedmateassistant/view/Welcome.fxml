@@ -26,7 +26,9 @@
                 <Cursor fx:constant="HAND"/>
             </cursor>
             <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
-                <Label text="👩‍💻" style="-fx-font-size: 90px;"/>
+                <StackPane style="-fx-background-color: #1E293B; -fx-background-radius: 60; -fx-min-width: 100; -fx-min-height: 100; -fx-max-width: 100; -fx-max-height: 100;" alignment="CENTER">
+                    <Label text="U" style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                </StackPane>
             </VBox>
             <HBox alignment="CENTER" style="-fx-padding: 0 0 25 0;">
                 <Label text="Login sebagai " style="-fx-font-size: 16px; -fx-text-fill: #4B5563;"/>
@@ -42,7 +44,9 @@
                 <Cursor fx:constant="HAND"/>
             </cursor>
             <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
-                <Label text="👨‍💼" style="-fx-font-size: 90px;"/>
+                <StackPane style="-fx-background-color: #D97706; -fx-background-radius: 60; -fx-min-width: 100; -fx-min-height: 100; -fx-max-width: 100; -fx-max-height: 100;" alignment="CENTER">
+                    <Label text="A" style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                </StackPane>
             </VBox>
             <HBox alignment="CENTER" style="-fx-padding: 0 0 25 0;">
                 <Label text="Login sebagai " style="-fx-font-size: 16px; -fx-text-fill: #4B5563;"/>

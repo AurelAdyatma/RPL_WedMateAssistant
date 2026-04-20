@@ -104,6 +104,8 @@ public class ChatbotEngine {
      */
     public void setDaftarEntri(List<EntriKnowledge> daftarEntri) {
         this.daftarEntri = (daftarEntri != null) ? daftarEntri : new ArrayList<>();
+        // Bersihkan cache pattern lama agar tidak ada pola basi yang tersimpan
+        regexMatcher.bersihkanCache();
         System.out.println("[ChatbotEngine] Knowledge base dimuat: "
                 + this.daftarEntri.size() + " entri.");
     }

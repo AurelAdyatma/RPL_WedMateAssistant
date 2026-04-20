@@ -73,10 +73,10 @@ public class ChatController {
     // ── Format helper ─────────────────────────────────────────────────────────
 
     private static final String[] QUICK_REPLIES = {
-        "👗 Lihat Busana",
-        "💰 Harga & Paket",
-        "📅 Cek Ketersediaan",
-        "📍 Info Toko"
+        "Lihat Busana",
+        "Harga & Paket",
+        "Cek Ketersediaan",
+        "Info Toko"
     };
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -208,7 +208,7 @@ public class ChatController {
 
     /** Menampilkan salam awal bot saat sesi baru dimulai. */
     private void tampilkanSalamAwal() {
-        String salam = "Halo! Selamat datang di WedMate Assistant 💍\n" +
+        String salam = "Halo! Selamat datang di WedMate Assistant.\n" +
                        "Saya siap membantu Anda menemukan busana pernikahan impian!\n" +
                        "Ada yang bisa saya bantu hari ini?";
 
@@ -256,9 +256,10 @@ public class ChatController {
      * Rata kiri, warna abu gelap (#2C2C4A), dengan avatar kecil.
      */
     private void tambahBubbleBot(String teks, LocalDateTime waktu) {
-        // Avatar dot kecil
-        StackPane avatar = new StackPane(new Label("💍"));
-        avatar.setStyle("-fx-background-color: #FFF2E8; -fx-background-radius: 18; -fx-min-width: 36; -fx-min-height: 36;");
+        // Avatar inisial bot
+        StackPane avatar = new StackPane(new Label("W"));
+        avatar.setStyle("-fx-background-color: #D97706; -fx-background-radius: 18; -fx-min-width: 36; -fx-min-height: 36;");
+        ((Label) avatar.getChildren().get(0)).setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
 
         // Label isi pesan
         Label lblPesan = new Label(teks);
