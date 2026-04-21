@@ -1,0 +1,7 @@
+PROJECT AKHIR RPLBO (CREATING A CHATBOT WITH THE NAME WEDMATE ASSISTANT)
+
+PEMBUAT :
+Klemens Aurel Adyatma (71241076)
+Audris Kasula         (71241105)
+Benteng Gading Aribowo(71241143)
+Richard Vanuella      (71241159)
