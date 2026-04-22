@@ -48,8 +48,9 @@
 
             <!-- Link/Action -->
             <Label text="Kunjungi WedMate" style="-fx-text-fill: #C3795B; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 16 0 0 0;"/>
-
         </VBox>
+        <Region VBox.vgrow="ALWAYS"/>
+        <Button fx:id="btnKembali" text="&lt; Kembali ke Menu" onAction="#handleKembali" maxWidth="Infinity" style="-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 8; -fx-cursor: hand;"/>
     </VBox>
 
     <!-- ══════════════════════════════════════════════════════ -->

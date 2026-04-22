@@ -20,10 +20,27 @@ public class LoginController {
     @FXML private Button btnLogin;
     @FXML private Label lblError;
 
+    @FXML private Button btnKembali;
+
     @FXML
     public void initialize() {
         lblError.setVisible(false);
         lblError.setManaged(false);
+    }
+
+    @FXML
+    private void handleKembali() {
+        try {
+            Stage stage = (Stage) btnLogin.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/rplbo/app/rpl_wedmateassistant/view/Welcome.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root, 900, 600);
+            stage.setScene(scene);
+            stage.setTitle("Welcome to WedMate");
+            stage.centerOnScreen();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

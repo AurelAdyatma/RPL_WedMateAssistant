@@ -1,10 +1,13 @@
 package com.rplbo.app.rpl_wedmateassistant.controller;
 
 import com.rplbo.app.rpl_wedmateassistant.database.DatabaseManager;
+import com.rplbo.app.rpl_wedmateassistant.database.DataSeeder;
 import com.rplbo.app.rpl_wedmateassistant.database.KnowledgeBaseDAO;
+import com.rplbo.app.rpl_wedmateassistant.database.PakaianDAO;
 import com.rplbo.app.rpl_wedmateassistant.engine.ChatbotEngine;
 import com.rplbo.app.rpl_wedmateassistant.engine.RegexMatcher.Kategori;
 import com.rplbo.app.rpl_wedmateassistant.model.EntriKnowledge;
+import com.rplbo.app.rpl_wedmateassistant.model.PakaianWedding;
 import com.rplbo.app.rpl_wedmateassistant.model.Pesan;
 import com.rplbo.app.rpl_wedmateassistant.model.Sesi;
 import com.rplbo.app.rpl_wedmateassistant.model.User;
@@ -12,11 +15,13 @@ import com.rplbo.app.rpl_wedmateassistant.model.User;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import org.controlsfx.control.Notifications;
@@ -51,11 +56,13 @@ public class ChatController {
 
     @FXML private TextField     txtInput;
     @FXML private Button        btnKirim;
+    @FXML private Button        btnKembali;
 
     // ── State ─────────────────────────────────────────────────────────────────
 
     private final ChatbotEngine      engine           = new ChatbotEngine();
     private final KnowledgeBaseDAO   knowledgeDAO     = new KnowledgeBaseDAO();
+    private final PakaianDAO         pakaianDAO       = new PakaianDAO();
     private final DateTimeFormatter  TIME_FMT         =
             DateTimeFormatter.ofPattern("HH:mm");
 
@@ -85,8 +92,9 @@ public class ChatController {
 
     @FXML
     public void initialize() {
-        // 1. Inisialisasi database
+        // 1. Inisialisasi database & seed jika kosong
         DatabaseManager.getInstance().initDB();
+        new DataSeeder().seed();
 
         // 2. Load knowledge base ke engine
         muatKnowledgeBase();
@@ -106,6 +114,21 @@ public class ChatController {
 
         // 6. Enter key di input → kirim
         txtInput.setOnAction(e -> handleKirimPesan());
+    }
+
+    @FXML
+    private void handleKembali() {
+        try {
+            Stage stage = (Stage) btnKirim.getScene().getWindow();
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/rplbo/app/rpl_wedmateassistant/view/Welcome.fxml"));
+            javafx.scene.Parent root = loader.load();
+            javafx.scene.Scene scene = new javafx.scene.Scene(root, 900, 600);
+            stage.setScene(scene);
+            stage.setTitle("Welcome to WedMate");
+            stage.centerOnScreen();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -181,9 +204,18 @@ public class ChatController {
         try {
             List<EntriKnowledge> entri = knowledgeDAO.findAll();
             engine.setDaftarEntri(entri != null ? entri : new ArrayList<>());
+            System.out.println("[ChatController] Knowledge base dimuat: " + (entri != null ? entri.size() : 0) + " entri.");
         } catch (Exception e) {
             System.err.println("[ChatController] Gagal load knowledge base: " + e.getMessage());
             engine.setDaftarEntri(new ArrayList<>());
+        }
+        try {
+            List<PakaianWedding> pakaian = pakaianDAO.findAll();
+            engine.setDaftarPakaian(pakaian != null ? pakaian : new ArrayList<>());
+            System.out.println("[ChatController] Pakaian dimuat: " + (pakaian != null ? pakaian.size() : 0) + " item.");
+        } catch (Exception e) {
+            System.err.println("[ChatController] Gagal load pakaian: " + e.getMessage());
+            engine.setDaftarPakaian(new ArrayList<>());
         }
     }
 

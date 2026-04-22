@@ -2,6 +2,7 @@ package com.rplbo.app.rpl_wedmateassistant.engine;
 
 import com.rplbo.app.rpl_wedmateassistant.model.EntriKnowledge;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -118,6 +119,14 @@ public class RegexMatcher {
                 "\\b(pesta|formal|semi\\s*formal|cocktail|midi\\s*dress|blazer|kemeja\\s*batik|gala|dinner)\\b" +
                 "|(?:pilih|nomor|no|#|kategori)\\s*8\\b"),
 
+        /** Busana Pria. */
+        BUSANA_PRIA(
+                "\\b(pria|laki|cowok|jas|beskap|tuxedo)\\b"),
+
+        /** Busana Wanita. */
+        BUSANA_WANITA(
+                "\\b(wanita|perempuan|cewek|gaun|kebaya|dress|hanbok|kimono|cheongsam)\\b"),
+
         /** Tidak ada kategori yang cocok. */
         TIDAK_DIKENAL(null);
 
@@ -155,6 +164,58 @@ public class RegexMatcher {
      * Menggunakan ConcurrentHashMap agar aman jika diakses dari multi-thread.
      */
     private final Map<String, Pattern> patternCache = new ConcurrentHashMap<>();
+
+    /**
+     * Pola regex dinamis yang dihasilkan secara otomatis dari nama-nama pakaian 
+     * di database. Key = Kategori, Value = Pattern.
+     */
+    private final Map<Kategori, Pattern> dynamicPatterns = new ConcurrentHashMap<>();
+
+    /**
+     * Mengupdate pola dinamis berdasarkan daftar pakaian dari database.
+     * Mengambil kata-kata unik dari nama pakaian untuk dijadikan keyword.
+     */
+    public void updateDynamicPatterns(List<com.rplbo.app.rpl_wedmateassistant.model.PakaianWedding> pakaian) {
+        if (pakaian == null) return;
+        dynamicPatterns.clear();
+
+        Map<Kategori, StringBuilder> keywordsMap = new HashMap<>();
+        for (com.rplbo.app.rpl_wedmateassistant.model.PakaianWedding p : pakaian) {
+            String namaPakaian = normalisasi(p.getNama());
+            String[] kataNama = namaPakaian.split("\\s+");
+            
+            Kategori kat = switch(p.getKategori().toLowerCase()) {
+                case "modern" -> Kategori.BUSANA_MODERN;
+                case "tradisional" -> Kategori.BUSANA_TRADISIONAL;
+                case "muslim" -> Kategori.BUSANA_MUSLIM;
+                case "internasional" -> Kategori.BUSANA_INTERNASIONAL;
+                case "bertema" -> Kategori.BUSANA_BERTEMA;
+                case "pre-wedding" -> Kategori.BUSANA_PREWEDDING;
+                case "keluarga" -> Kategori.BUSANA_KELUARGA;
+                case "pesta" -> Kategori.BUSANA_PESTA;
+                default -> null;
+            };
+
+            if (kat != null) {
+                StringBuilder sb = keywordsMap.computeIfAbsent(kat, k -> new StringBuilder());
+                for (String w : kataNama) {
+                    // Hindari kata umum dan nama kategori utama agar tidak overlap (karena sudah di-handle oleh built-in regex)
+                    if (w.length() > 3 && !w.matches("baju|gaun|adat|pakaian|jas|sewa|untuk|modern|tradisional|muslim|muslimah|internasional|bertema|keluarga|pesta|prewedding|wedding|pengantin")) {
+                        if (sb.length() > 0) sb.append("|");
+                        sb.append(w);
+                    }
+                }
+            }
+        }
+
+        for (Map.Entry<Kategori, StringBuilder> entry : keywordsMap.entrySet()) {
+            if (entry.getValue().length() > 0) {
+                String regex = "\\b(" + entry.getValue().toString() + ")\\b";
+                dynamicPatterns.put(entry.getKey(), Pattern.compile(regex, Pattern.CASE_INSENSITIVE));
+                System.out.println("[RegexMatcher] Learned keywords for " + entry.getKey() + ": " + regex);
+            }
+        }
+    }
 
     // ── Public API ────────────────────────────────────────────────────────────
 
@@ -194,12 +255,12 @@ public class RegexMatcher {
         if (Kategori.HARGA_PAKET.cocok(normal))       return Kategori.HARGA_PAKET;
         if (Kategori.INFO_TOKO.cocok(normal))         return Kategori.INFO_TOKO;
 
-        // ── Prioritas 4: Koleksi busana (umum) ───────────────────────────────
-        if (Kategori.LIHAT_BUSANA.cocok(normal))      return Kategori.LIHAT_BUSANA;
-
-        // ── Prioritas 5: Sub-kategori busana ─────────────────────────────────
-        // Urutan: dari yang paling spesifik (pola unik) ke umum
-        if (Kategori.BUSANA_TRADISIONAL.cocok(normal))   return Kategori.BUSANA_TRADISIONAL;
+        // ── Prioritas 4: Sub-kategori busana (Sangat Spesifik) ───────────────
+        // A. Cek built-in pattern (Kata kunci utama yang paling akurat)
+        if (Kategori.BUSANA_PRIA.cocok(normal))           return Kategori.BUSANA_PRIA;
+        if (Kategori.BUSANA_WANITA.cocok(normal))         return Kategori.BUSANA_WANITA;
+        
+        if (Kategori.BUSANA_TRADISIONAL.cocok(normal))    return Kategori.BUSANA_TRADISIONAL;
         if (Kategori.BUSANA_MUSLIM.cocok(normal))         return Kategori.BUSANA_MUSLIM;
         if (Kategori.BUSANA_INTERNASIONAL.cocok(normal))  return Kategori.BUSANA_INTERNASIONAL;
         if (Kategori.BUSANA_BERTEMA.cocok(normal))        return Kategori.BUSANA_BERTEMA;
@@ -207,6 +268,21 @@ public class RegexMatcher {
         if (Kategori.BUSANA_KELUARGA.cocok(normal))       return Kategori.BUSANA_KELUARGA;
         if (Kategori.BUSANA_PESTA.cocok(normal))          return Kategori.BUSANA_PESTA;
         if (Kategori.BUSANA_MODERN.cocok(normal))         return Kategori.BUSANA_MODERN;
+
+        // B. Cek pola dinamis (Dari nama-nama spesifik pakaian di database)
+        Kategori[] subKategori = {
+            Kategori.BUSANA_TRADISIONAL, Kategori.BUSANA_MUSLIM, Kategori.BUSANA_INTERNASIONAL,
+            Kategori.BUSANA_BERTEMA, Kategori.BUSANA_PREWEDDING, Kategori.BUSANA_KELUARGA,
+            Kategori.BUSANA_PESTA, Kategori.BUSANA_MODERN
+        };
+        for (Kategori k : subKategori) {
+            Pattern dp = dynamicPatterns.get(k);
+            if (dp != null && dp.matcher(normal).find()) return k;
+        }
+
+        // ── Prioritas 5: Koleksi busana (Umum) ───────────────────────────────
+        // Jika tidak masuk sub-kategori tapi mengandung kata "baju/gaun"
+        if (Kategori.LIHAT_BUSANA.cocok(normal))      return Kategori.LIHAT_BUSANA;
 
         return Kategori.TIDAK_DIKENAL;
     }

@@ -19,7 +19,7 @@
     <HBox alignment="CENTER" spacing="30">
         
         <!-- Card User -->
-        <VBox alignment="CENTER" spacing="20" prefWidth="350" prefHeight="280"
+        <VBox fx:id="cardUser" alignment="CENTER" spacing="20" prefWidth="350" prefHeight="280"
               style="-fx-background-color: #F4F9FD; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1;"
               onMouseClicked="#handleUserClick">
             <cursor>
@@ -37,7 +37,7 @@
         </VBox>
 
         <!-- Card Admin -->
-        <VBox alignment="CENTER" spacing="20" prefWidth="350" prefHeight="280"
+        <VBox fx:id="cardAdmin" alignment="CENTER" spacing="20" prefWidth="350" prefHeight="280"
               style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1;"
               onMouseClicked="#handleAdminClick">
             <cursor>
@@ -55,5 +55,8 @@
         </VBox>
 
     </HBox>
+
+    <Button text="Lanjutkan" onAction="#handleLanjutkan" 
+            style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 12 40; -fx-background-radius: 25; -fx-cursor: hand;" />
 
 </VBox>

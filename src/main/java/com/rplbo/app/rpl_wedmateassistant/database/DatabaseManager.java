@@ -141,6 +141,7 @@ public class DatabaseManager {
                 jenis          TEXT    NOT NULL,
                 ukuran         TEXT    NOT NULL,
                 harga_sewa     REAL    NOT NULL DEFAULT 0,
+                gender         TEXT    NOT NULL DEFAULT 'Unisex',
                 tersedia       INTEGER NOT NULL DEFAULT 1,
                 tgl_tersedia   TEXT
             );
@@ -190,6 +191,13 @@ public class DatabaseManager {
 
             for (String ddl : ddlStatements) {
                 stmt.execute(ddl);
+            }
+            
+            // Migrasi untuk database yang sudah ada
+            try {
+                stmt.execute("ALTER TABLE pakaian_wedding ADD COLUMN gender TEXT NOT NULL DEFAULT 'Unisex'");
+            } catch (SQLException ignore) {
+                // Kolom sudah ada
             }
 
             getConnection().commit();

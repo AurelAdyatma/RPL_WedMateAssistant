@@ -2,6 +2,7 @@ package com.rplbo.app.rpl_wedmateassistant.engine;
 
 import com.rplbo.app.rpl_wedmateassistant.engine.RegexMatcher.Kategori;
 import com.rplbo.app.rpl_wedmateassistant.model.EntriKnowledge;
+import com.rplbo.app.rpl_wedmateassistant.model.PakaianWedding;
 import com.rplbo.app.rpl_wedmateassistant.model.Pesan;
 import com.rplbo.app.rpl_wedmateassistant.model.Sesi;
 
@@ -34,11 +35,11 @@ public class ChatbotEngine {
     private final RegexMatcher      regexMatcher;
     private final ResponseGenerator responseGenerator;
 
-    /**
-     * Cache entri knowledge base dari database.
-     * Di-set oleh Controller setelah load dari {@code KnowledgeBaseDAO.findAll()}.
-     */
-    private List<EntriKnowledge> daftarEntri = new ArrayList<>();
+    /** Cache entri knowledge base dari database. */
+    private List<EntriKnowledge>  daftarEntri   = new ArrayList<>();
+
+    /** Cache data pakaian dari database. */
+    private List<PakaianWedding>  daftarPakaian = new ArrayList<>();
 
     // ── Constructor ───────────────────────────────────────────────────────────
 
@@ -65,49 +66,61 @@ public class ChatbotEngine {
      * @return {@link Pesan} balasan dari bot, tidak pernah null
      */
     public Pesan prosesPesan(String inputPengguna, Sesi sesi) {
-        // ── 1. Guard: input kosong ────────────────────────────────────────────
+        // ── 1. Guard: input kosong
         if (inputPengguna == null || inputPengguna.isBlank()) {
-            return buatPesanBot("Silakan ketik pertanyaan Anda 😊", sesi);
+            return buatPesanBot("Silakan ketik pertanyaan Anda.", sesi);
         }
 
-        // ── 2. Deteksi kategori via built-in regex ────────────────────────────
+        // ── 2. Deteksi kategori
         Kategori kategori = regexMatcher.deteksiKategori(inputPengguna);
 
-        // ── 3. Cari entri spesifik di knowledge base DB ───────────────────────
-        //    Coba cocokkan pola pertanyaan dari entri DB
+        // ── 3. Cari entri di knowledge base DB
         EntriKnowledge entriDB = regexMatcher.cocokkan(inputPengguna, daftarEntri);
-
-        //    Jika tidak cocok pola per-pertanyaan, cari berdasarkan kategori
         if (entriDB == null && kategori != Kategori.TIDAK_DIKENAL) {
             entriDB = regexMatcher.cariPerKategori(kategori, daftarEntri);
         }
 
-        // ── 4. Generate respons ───────────────────────────────────────────────
-        //    Prioritas: jawaban DB > default kategori > fallback
-        String teksRespons = responseGenerator.generate(entriDB, kategori);
+        // ── 4. Coba generate respons dari pakaian DB jika kategori busana atau gender
+        String responsPakaian = null;
+        if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
+            responsPakaian = generateResponsGender(kategori);
+        } else {
+            responsPakaian = generateResponsPakaian(inputPengguna, kategori);
+        }
 
-        // ── 5. Log kategori untuk debugging ──────────────────────────────────
-        System.out.printf("[ChatbotEngine] Input: \"%s\" → Kategori: %s | Entri DB: %s%n",
-                inputPengguna,
-                kategori,
+        // ── 5. Generate respons final
+        String teksRespons;
+        if (responsPakaian != null) {
+            teksRespons = responsPakaian;
+        } else {
+            teksRespons = responseGenerator.generate(entriDB, kategori);
+        }
+
+        System.out.printf("[ChatbotEngine] Input: \"%s\" -> Kategori: %s | EntriDB: %s%n",
+                inputPengguna, kategori,
                 entriDB != null ? "id=" + entriDB.getId() : "null");
 
-        // ── 6. Buat dan kembalikan Pesan bot ──────────────────────────────────
         return buatPesanBot(teksRespons, sesi);
     }
 
     /**
      * Menginjeksikan daftar entri knowledge base dari database.
-     * Dipanggil oleh {@code ChatController} setelah data berhasil dimuat dari DAO.
-     *
-     * @param daftarEntri daftar {@link EntriKnowledge} yang aktif
      */
     public void setDaftarEntri(List<EntriKnowledge> daftarEntri) {
         this.daftarEntri = (daftarEntri != null) ? daftarEntri : new ArrayList<>();
-        // Bersihkan cache pattern lama agar tidak ada pola basi yang tersimpan
         regexMatcher.bersihkanCache();
         System.out.println("[ChatbotEngine] Knowledge base dimuat: "
                 + this.daftarEntri.size() + " entri.");
+    }
+
+    /**
+     * Menginjeksikan daftar pakaian wedding dari database.
+     */
+    public void setDaftarPakaian(List<PakaianWedding> daftarPakaian) {
+        this.daftarPakaian = (daftarPakaian != null) ? daftarPakaian : new ArrayList<>();
+        regexMatcher.updateDynamicPatterns(this.daftarPakaian);
+        System.out.println("[ChatbotEngine] Pakaian dimuat: "
+                + this.daftarPakaian.size() + " item.");
     }
 
     /** Mengembalikan jumlah entri knowledge base yang saat ini di-cache. */
@@ -133,5 +146,92 @@ public class ChatbotEngine {
         }
 
         return pesan;
+    }
+
+    /**
+     * Menghasilkan respons pakaian secara dinamis dari database berdasarkan kategori
+     * busana yang terdeteksi. Jika bukan kategori busana, kembalikan null.
+     */
+    private String generateResponsGender(Kategori kategori) {
+        if (kategori == null) return null;
+        
+        String genderTarget = kategori == Kategori.BUSANA_PRIA ? "Pria" : "Wanita";
+        
+        List<PakaianWedding> cocok = daftarPakaian.stream()
+                .filter(p -> p.getGender() != null && 
+                            (p.getGender().equalsIgnoreCase(genderTarget) || p.getGender().equalsIgnoreCase("Unisex")))
+                .toList();
+
+        if (cocok.isEmpty()) {
+            return "[ Koleksi Busana " + genderTarget + " ]\n\n" +
+                    "Maaf, saat ini koleksi untuk busana " + genderTarget.toLowerCase() + " sedang kosong atau belum tersedia.\n" +
+                    "Silakan cek kategori lain atau hubungi admin kami.";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ Koleksi Busana ").append(genderTarget).append(" ]\n\n");
+        sb.append("Berikut koleksi yang tersedia untuk ").append(genderTarget).append(":\n\n");
+
+        for (PakaianWedding p : cocok) {
+            sb.append("• ").append(p.getNama()).append(" (").append(p.getKategori()).append(")\n");
+            sb.append("  Ukuran : ").append(p.getUkuranTersedia()).append("\n");
+            sb.append("  Harga  : Rp ").append(String.format("%,d", (long) p.getHargaSewa())).append("/hari\n");
+            if (!p.isTersedia()) {
+                sb.append("  Status : SEDANG DISEWA\n");
+            }
+            sb.append("\n");
+        }
+
+        sb.append("Ketik 'cek ketersediaan' untuk memastikan stok pada tanggal acara Anda.");
+        return sb.toString();
+    }
+
+    /**
+     * Menghasilkan respons pakaian secara dinamis dari database berdasarkan kategori
+     * busana yang terdeteksi. Jika bukan kategori busana, kembalikan null.
+     */
+    private String generateResponsPakaian(String input, Kategori kategori) {
+        if (kategori == null) return null;
+
+        String dbKategori = switch (kategori) {
+            case BUSANA_MODERN -> "Modern";
+            case BUSANA_TRADISIONAL -> "Tradisional";
+            case BUSANA_MUSLIM -> "Muslim";
+            case BUSANA_INTERNASIONAL -> "Internasional";
+            case BUSANA_BERTEMA -> "Bertema";
+            case BUSANA_PREWEDDING -> "Pre-Wedding";
+            case BUSANA_KELUARGA -> "Keluarga";
+            case BUSANA_PESTA -> "Pesta";
+            default -> null;
+        };
+
+        if (dbKategori == null) return null;
+
+        List<PakaianWedding> cocok = daftarPakaian.stream()
+                .filter(p -> p.getKategori().equalsIgnoreCase(dbKategori))
+                .toList();
+
+        if (cocok.isEmpty()) {
+            return "[ Koleksi Busana " + dbKategori + " ]\n\n" +
+                    "Maaf, saat ini koleksi untuk kategori ini sedang kosong atau belum tersedia.\n" +
+                    "Silakan cek kategori lain atau hubungi admin kami.";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ Koleksi Busana ").append(dbKategori).append(" ]\n\n");
+        sb.append("Berikut koleksi yang tersedia:\n\n");
+
+        for (PakaianWedding p : cocok) {
+            sb.append("• ").append(p.getNama()).append("\n");
+            sb.append("  Ukuran : ").append(p.getUkuranTersedia()).append("\n");
+            sb.append("  Harga  : Rp ").append(String.format("%,d", (long) p.getHargaSewa())).append("/hari\n");
+            if (!p.isTersedia()) {
+                sb.append("  Status : SEDANG DISEWA\n");
+            }
+            sb.append("\n");
+        }
+
+        sb.append("Ketik 'cek ketersediaan' untuk memastikan stok pada tanggal acara Anda.");
+        return sb.toString();
     }
 }

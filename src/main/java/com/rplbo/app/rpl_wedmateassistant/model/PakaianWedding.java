@@ -11,11 +11,12 @@ public class PakaianWedding {
     private double hargaSewa;
     private String ukuranTersedia;
     private String imagePath;
+    private String gender;
     private boolean tersedia;
 
     public PakaianWedding() {}
 
-    public PakaianWedding(int id, String nama, String kategori, String deskripsi, double hargaSewa, String ukuranTersedia, String imagePath, boolean tersedia) {
+    public PakaianWedding(int id, String nama, String kategori, String deskripsi, double hargaSewa, String ukuranTersedia, String imagePath, String gender, boolean tersedia) {
         this.id = id;
         this.nama = nama;
         this.kategori = kategori;
@@ -23,6 +24,7 @@ public class PakaianWedding {
         this.hargaSewa = hargaSewa;
         this.ukuranTersedia = ukuranTersedia;
         this.imagePath = imagePath;
+        this.gender = gender;
         this.tersedia = tersedia;
     }
 
@@ -40,6 +42,8 @@ public class PakaianWedding {
     public void setUkuranTersedia(String ukuranTersedia) { this.ukuranTersedia = ukuranTersedia; }
     public String getImagePath() { return imagePath; }
     public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
     public boolean isTersedia() { return tersedia; }
     public void setTersedia(boolean tersedia) { this.tersedia = tersedia; }
 }

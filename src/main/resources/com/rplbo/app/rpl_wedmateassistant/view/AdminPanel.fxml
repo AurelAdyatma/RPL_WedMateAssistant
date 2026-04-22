@@ -2,52 +2,108 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <!--
-    AdminPanel.fxml — Panel manajemen data untuk Admin WedMate Assistant.
+    AdminPanel.fxml — Panel manajemen data Admin WedMate Assistant.
     Controller: com.rplbo.app.rpl_wedmateassistant.controller.AdminController
 -->
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.AdminController"
-            styleClass="admin-root">
+            style="-fx-background-color: #F1F5F9;">
 
-    <!-- Sidebar navigasi -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- KIRI: Sidebar                                       -->
+    <!-- ═══════════════════════════════════════════════════ -->
     <left>
-        <VBox spacing="8" styleClass="admin-sidebar">
-            <Label text="Admin Panel" styleClass="sidebar-title"/>
-            <Button text="Knowledge Base" styleClass="sidebar-btn"/>
-            <Button text="Pakaian Wedding" styleClass="sidebar-btn"/>
-            <Button text="Paket Sewa"      styleClass="sidebar-btn"/>
+        <VBox spacing="0"
+              style="-fx-background-color: #1E293B; -fx-min-width: 220; -fx-max-width: 220;">
+
+            <!-- Logo / Brand -->
+            <VBox alignment="CENTER" style="-fx-padding: 30 20 20 20; -fx-background-color: #0F172A;">
+                <Label text="WedMate" style="-fx-text-fill: #D97706; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+                <Label text="Admin Panel" style="-fx-text-fill: #94A3B8; -fx-font-size: 12px;"/>
+            </VBox>
+
+            <!-- Menu Items -->
+            <VBox spacing="4" style="-fx-padding: 20 12;">
+                <Button fx:id="btnSectionKnowledge"
+                        text="Knowledge Base"
+                        maxWidth="9999"
+                        onAction="#handleSeksiKnowledge"
+                        style="-fx-background-color: #334155; -fx-text-fill: white; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 12 16; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                <Button fx:id="btnSectionPakaian"
+                        text="Pakaian Wedding"
+                        maxWidth="9999"
+                        onAction="#handleSeksiPakaian"
+                        style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 12 16; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                <Button fx:id="btnSectionPaket"
+                        text="Paket Sewa"
+                        maxWidth="9999"
+                        onAction="#handleSeksiPaket"
+                        style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 12 16; -fx-background-radius: 8; -fx-cursor: hand;"/>
+            </VBox>
+
+            <!-- Spacer -->
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <!-- Logout -->
+            <VBox style="-fx-padding: 12;">
+                <Button fx:id="btnLogout"
+                        text="Logout"
+                        maxWidth="9999"
+                        onAction="#handleLogout"
+                        style="-fx-background-color: #7F1D1D; -fx-text-fill: white; -fx-font-size: 13px; -fx-padding: 10 16; -fx-background-radius: 8; -fx-cursor: hand;"/>
+            </VBox>
         </VBox>
     </left>
 
-    <!-- Konten utama -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- KANAN: Konten Utama                                 -->
+    <!-- ═══════════════════════════════════════════════════ -->
     <center>
-        <VBox spacing="12" styleClass="admin-content">
+        <VBox spacing="16" style="-fx-padding: 24;">
 
-            <!-- Toolbar -->
-            <HBox spacing="8" styleClass="admin-toolbar">
-                <TextField fx:id="txtCari" promptText="Cari..." HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnTambah" text="+ Tambah" onAction="#handleTambah" styleClass="btn-primary"/>
-                <Button fx:id="btnEdit"   text="Edit"     onAction="#handleEdit"   styleClass="btn-secondary"/>
-                <Button fx:id="btnHapus"  text="Hapus"    onAction="#handleHapus"  styleClass="btn-danger"/>
+            <!-- Header Bar -->
+            <HBox alignment="CENTER_LEFT" spacing="16"
+                  style="-fx-background-color: white; -fx-padding: 16 20; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);">
+                <Label fx:id="lblSection"
+                       text="Knowledge Base (Chatbot)"
+                       style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="txtCari"
+                           promptText="Cari data..."
+                           prefWidth="200"
+                           style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                <Button fx:id="btnTambah" text="+ Tambah" onAction="#handleTambah"
+                        style="-fx-background-color: #16A34A; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;"/>
+                <Button fx:id="btnEdit"   text="Edit"     onAction="#handleEdit"
+                        style="-fx-background-color: #D97706; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;"/>
+                <Button fx:id="btnHapus"  text="Hapus"    onAction="#handleHapus"
+                        style="-fx-background-color: #DC2626; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;"/>
             </HBox>
 
-            <!-- Tabel Knowledge Base -->
-            <TitledPane text="Knowledge Base" expanded="true">
-                <TableView fx:id="tableKnowledge" styleClass="admin-table"/>
-            </TitledPane>
+            <!-- ── Seksi: Knowledge Base ───────────────── -->
+            <VBox fx:id="sectionKnowledge" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tableKnowledge"
+                           VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: white; -fx-background-radius: 10;"/>
+            </VBox>
 
-            <!-- Tabel Pakaian -->
-            <TitledPane text="Pakaian Wedding" expanded="false">
-                <TableView fx:id="tablePakaian" styleClass="admin-table"/>
-            </TitledPane>
+            <!-- ── Seksi: Pakaian Wedding ─────────────── -->
+            <VBox fx:id="sectionPakaian" VBox.vgrow="ALWAYS" visible="false" managed="false">
+                <TableView fx:id="tablePakaian"
+                           VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: white; -fx-background-radius: 10;"/>
+            </VBox>
 
-            <!-- Tabel Paket -->
-            <TitledPane text="Paket Sewa" expanded="false">
-                <TableView fx:id="tablePaket" styleClass="admin-table"/>
-            </TitledPane>
+            <!-- ── Seksi: Paket Sewa ──────────────────── -->
+            <VBox fx:id="sectionPaket" VBox.vgrow="ALWAYS" visible="false" managed="false">
+                <TableView fx:id="tablePaket"
+                           VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: white; -fx-background-radius: 10;"/>
+            </VBox>
 
         </VBox>
     </center>

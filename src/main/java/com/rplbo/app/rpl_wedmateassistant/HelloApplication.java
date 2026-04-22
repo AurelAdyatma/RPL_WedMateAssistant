@@ -1,6 +1,7 @@
 package com.rplbo.app.rpl_wedmateassistant;
 
 import com.rplbo.app.rpl_wedmateassistant.database.DatabaseManager;
+import com.rplbo.app.rpl_wedmateassistant.database.DataSeeder;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -13,6 +14,7 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         DatabaseManager.getInstance().initDB();
+        new DataSeeder().seed();
 
         FXMLLoader fxmlLoader = new FXMLLoader(
                 HelloApplication.class.getResource("/com/rplbo/app/rpl_wedmateassistant/view/Welcome.fxml")

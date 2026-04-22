@@ -73,14 +73,15 @@ public class PakaianDAO {
     }
 
     public boolean save(PakaianWedding pakaian) {
-        String sql = "INSERT INTO pakaian_wedding (nama, jenis, ukuran, harga_sewa, tersedia) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pakaian_wedding (nama, jenis, ukuran, harga_sewa, gender, tersedia) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, pakaian.getNama());
             stmt.setString(2, pakaian.getKategori());
             stmt.setString(3, pakaian.getUkuranTersedia());
             stmt.setDouble(4, pakaian.getHargaSewa());
-            stmt.setInt(5, pakaian.isTersedia() ? 1 : 0);
+            stmt.setString(5, pakaian.getGender() != null ? pakaian.getGender() : "Unisex");
+            stmt.setInt(6, pakaian.isTersedia() ? 1 : 0);
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -89,15 +90,16 @@ public class PakaianDAO {
     }
 
     public boolean update(PakaianWedding pakaian) {
-        String sql = "UPDATE pakaian_wedding SET nama = ?, jenis = ?, ukuran = ?, harga_sewa = ?, tersedia = ? WHERE id = ?";
+        String sql = "UPDATE pakaian_wedding SET nama = ?, jenis = ?, ukuran = ?, harga_sewa = ?, gender = ?, tersedia = ? WHERE id = ?";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, pakaian.getNama());
             stmt.setString(2, pakaian.getKategori());
             stmt.setString(3, pakaian.getUkuranTersedia());
             stmt.setDouble(4, pakaian.getHargaSewa());
-            stmt.setInt(5, pakaian.isTersedia() ? 1 : 0);
-            stmt.setInt(6, pakaian.getId());
+            stmt.setString(5, pakaian.getGender() != null ? pakaian.getGender() : "Unisex");
+            stmt.setInt(6, pakaian.isTersedia() ? 1 : 0);
+            stmt.setInt(7, pakaian.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -124,6 +126,11 @@ public class PakaianDAO {
         p.setKategori(rs.getString("jenis"));
         p.setUkuranTersedia(rs.getString("ukuran"));
         p.setHargaSewa(rs.getDouble("harga_sewa"));
+        try {
+            p.setGender(rs.getString("gender"));
+        } catch (SQLException e) {
+            p.setGender("Unisex"); // fallback
+        }
         p.setTersedia(rs.getInt("tersedia") == 1);
         return p;
     }
