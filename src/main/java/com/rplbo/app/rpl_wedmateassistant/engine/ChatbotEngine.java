@@ -12,7 +12,10 @@ import java.util.List;
 /**
  * Orkestrator utama chatbot WedMate Assistant.
  *
- * <p>Alur pemrosesan per pesan pengguna:</p>
+ * <p>
+ * Alur pemrosesan per pesan pengguna:
+ * </p>
+ * 
  * <pre>
  *   Input teks
  *      ↓
@@ -25,26 +28,28 @@ import java.util.List;
  *   Pesan (bot) → disimpan ke Sesi
  * </pre>
  *
- * <p>Data knowledge base di-inject dari luar (Controller) via
- * {@link #setDaftarEntri(List)} agar engine tidak langsung bergantung pada DAO.</p>
+ * <p>
+ * Data knowledge base di-inject dari luar (Controller) via
+ * {@link #setDaftarEntri(List)} agar engine tidak langsung bergantung pada DAO.
+ * </p>
  */
 public class ChatbotEngine {
 
     // ── Dependensi ────────────────────────────────────────────────────────────
 
-    private final RegexMatcher      regexMatcher;
+    private final RegexMatcher regexMatcher;
     private final ResponseGenerator responseGenerator;
 
     /** Cache entri knowledge base dari database. */
-    private List<EntriKnowledge>  daftarEntri   = new ArrayList<>();
+    private List<EntriKnowledge> daftarEntri = new ArrayList<>();
 
     /** Cache data pakaian dari database. */
-    private List<PakaianWedding>  daftarPakaian = new ArrayList<>();
+    private List<PakaianWedding> daftarPakaian = new ArrayList<>();
 
     // ── Constructor ───────────────────────────────────────────────────────────
 
     public ChatbotEngine() {
-        this.regexMatcher      = new RegexMatcher();
+        this.regexMatcher = new RegexMatcher();
         this.responseGenerator = new ResponseGenerator();
     }
 
@@ -54,11 +59,11 @@ public class ChatbotEngine {
      * Memproses satu pesan pengguna dan mengembalikan balasan dari bot.
      *
      * <ol>
-     *   <li>Normalisasi teks input</li>
-     *   <li>Deteksi kategori via built-in regex</li>
-     *   <li>Cari entri spesifik di knowledge base DB</li>
-     *   <li>Generate teks respons (DB &gt; default per kategori &gt; fallback)</li>
-     *   <li>Bungkus dalam objek {@link Pesan} dan tambahkan ke {@link Sesi}</li>
+     * <li>Normalisasi teks input</li>
+     * <li>Deteksi kategori via built-in regex</li>
+     * <li>Cari entri spesifik di knowledge base DB</li>
+     * <li>Generate teks respons (DB &gt; default per kategori &gt; fallback)</li>
+     * <li>Bungkus dalam objek {@link Pesan} dan tambahkan ke {@link Sesi}</li>
      * </ol>
      *
      * @param inputPengguna teks mentah yang dikirim pengguna
@@ -84,6 +89,8 @@ public class ChatbotEngine {
         String responsPakaian = null;
         if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
             responsPakaian = generateResponsGender(kategori);
+        } else if (kategori == Kategori.REKOMENDASI_UKURAN) {
+            responsPakaian = generateRekomendasiUkuran(inputPengguna);
         } else {
             responsPakaian = generateResponsPakaian(inputPengguna, kategori);
         }
@@ -124,7 +131,9 @@ public class ChatbotEngine {
     }
 
     /** Mengembalikan jumlah entri knowledge base yang saat ini di-cache. */
-    public int getJumlahEntri() { return daftarEntri.size(); }
+    public int getJumlahEntri() {
+        return daftarEntri.size();
+    }
 
     // ── Helper ────────────────────────────────────────────────────────────────
 
@@ -149,22 +158,25 @@ public class ChatbotEngine {
     }
 
     /**
-     * Menghasilkan respons pakaian secara dinamis dari database berdasarkan kategori
+     * Menghasilkan respons pakaian secara dinamis dari database berdasarkan
+     * kategori
      * busana yang terdeteksi. Jika bukan kategori busana, kembalikan null.
      */
     private String generateResponsGender(Kategori kategori) {
-        if (kategori == null) return null;
-        
+        if (kategori == null)
+            return null;
+
         String genderTarget = kategori == Kategori.BUSANA_PRIA ? "Pria" : "Wanita";
-        
+
         List<PakaianWedding> cocok = daftarPakaian.stream()
-                .filter(p -> p.getGender() != null && 
-                            (p.getGender().equalsIgnoreCase(genderTarget) || p.getGender().equalsIgnoreCase("Unisex")))
+                .filter(p -> p.getGender() != null &&
+                        (p.getGender().equalsIgnoreCase(genderTarget) || p.getGender().equalsIgnoreCase("Unisex")))
                 .toList();
 
         if (cocok.isEmpty()) {
             return "[ Koleksi Busana " + genderTarget + " ]\n\n" +
-                    "Maaf, saat ini koleksi untuk busana " + genderTarget.toLowerCase() + " sedang kosong atau belum tersedia.\n" +
+                    "Maaf, saat ini koleksi untuk busana " + genderTarget.toLowerCase()
+                    + " sedang kosong atau belum tersedia.\n" +
                     "Silakan cek kategori lain atau hubungi admin kami.";
         }
 
@@ -187,11 +199,104 @@ public class ChatbotEngine {
     }
 
     /**
-     * Menghasilkan respons pakaian secara dinamis dari database berdasarkan kategori
+     * Mengekstrak angka tinggi/berat dari input dan memberikan rekomendasi ukuran.
+     */
+    private String generateRekomendasiUkuran(String input) {
+        String normal = input.toLowerCase().replaceAll("[^0-9a-z\\s]", "");
+
+        // Cari angka tinggi badan (biasanya diikuti cm atau diawali "tinggi")
+        Integer tinggi = extractNumber(normal, "tinggi", "cm");
+        // Cari angka berat badan (biasanya diikuti kg atau diawali "berat")
+        Integer berat = extractNumber(normal, "berat", "kg");
+
+        if (tinggi == null && berat == null) {
+            // Coba cari angka saja jika tidak ada kata kunci pendukung
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\d+").matcher(normal);
+            if (m.find()) {
+                int val = Integer.parseInt(m.group());
+                if (val > 100)
+                    tinggi = val; // Asumsi angka di atas 100 adalah tinggi
+                else
+                    berat = val; // Asumsi angka di bawah 100 adalah berat
+            }
+        }
+
+        if (tinggi == null && berat == null) {
+            return "Mohon maaf, saya belum bisa menentukan ukuran Anda. Bisa informasikan tinggi badan (cm) atau berat badan (kg) Anda?";
+        }
+
+        String sizeTinggi = null;
+        if (tinggi != null) {
+            if (tinggi < 155)
+                sizeTinggi = "S";
+            else if (tinggi < 170)
+                sizeTinggi = "M";
+            else if (tinggi < 185)
+                sizeTinggi = "L";
+            else
+                sizeTinggi = "XL";
+        }
+
+        String sizeBerat = null;
+        if (berat != null) {
+            if (berat < 50)
+                sizeBerat = "S";
+            else if (berat < 65)
+                sizeBerat = "M";
+            else if (berat < 80)
+                sizeBerat = "L";
+            else
+                sizeBerat = "XL";
+        }
+
+        // Tentukan ukuran final (ambil yang paling besar jika ada dua data)
+        String finalSize = "M"; // default
+        if (sizeTinggi != null && sizeBerat != null) {
+            finalSize = compareSize(sizeTinggi, sizeBerat) >= 0 ? sizeTinggi : sizeBerat;
+        } else if (sizeTinggi != null) {
+            finalSize = sizeTinggi;
+        } else if (sizeBerat != null) {
+            finalSize = sizeBerat;
+        }
+
+        StringBuilder res = new StringBuilder();
+        res.append("[ Rekomendasi Ukuran ]\n\n");
+        res.append("Berdasarkan data yang Anda berikan:\n");
+        if (tinggi != null)
+            res.append("- Tinggi: ").append(tinggi).append(" cm\n");
+        if (berat != null)
+            res.append("- Berat: ").append(berat).append(" kg\n");
+        res.append("\nKami merekomendasikan ukuran: ").append(finalSize).append("\n\n");
+        res.append(
+                "Catatan: Rekomendasi ini bersifat perkiraan. Kami sangat menyarankan Anda untuk melakukan fitting langsung di toko kami untuk kenyamanan maksimal.");
+
+        return res.toString();
+    }
+
+    private Integer extractNumber(String input, String keyword, String unit) {
+        // Pola: "tinggi 170" atau "170cm" atau "170 cm"
+        String regex = "(?:" + keyword + "\\s*(\\d+))|(\\d+)\\s*" + unit;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile(regex).matcher(input);
+        if (m.find()) {
+            String val = m.group(1) != null ? m.group(1) : m.group(2);
+            return Integer.parseInt(val);
+        }
+        return null;
+    }
+
+    private int compareSize(String s1, String s2) {
+        List<String> order = List.of("XS", "S", "M", "L", "XL", "XXL");
+        return order.indexOf(s1) - order.indexOf(s2);
+    }
+
+    /**
+     * Menghasilkan respons pakaian secara dinamis dari database berdasarkan
+     * kategori
      * busana yang terdeteksi. Jika bukan kategori busana, kembalikan null.
      */
     private String generateResponsPakaian(String input, Kategori kategori) {
-        if (kategori == null) return null;
+        if (kategori == null)
+            return null;
 
         String dbKategori = switch (kategori) {
             case BUSANA_MODERN -> "Modern";
@@ -205,7 +310,8 @@ public class ChatbotEngine {
             default -> null;
         };
 
-        if (dbKategori == null) return null;
+        if (dbKategori == null)
+            return null;
 
         List<PakaianWedding> cocok = daftarPakaian.stream()
                 .filter(p -> p.getKategori().equalsIgnoreCase(dbKategori))

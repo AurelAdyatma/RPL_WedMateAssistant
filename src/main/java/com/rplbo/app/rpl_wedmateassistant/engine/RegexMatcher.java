@@ -127,6 +127,10 @@ public class RegexMatcher {
         BUSANA_WANITA(
                 "\\b(wanita|perempuan|cewek|gaun|kebaya|dress|hanbok|kimono|cheongsam)\\b"),
 
+        /** Pengguna menanyakan rekomendasi ukuran berdasarkan tinggi/berat badan. */
+        REKOMENDASI_UKURAN(
+                "\\b(tinggi|berat|ukuran|size|rekomendasi\\s+ukuran|cm|kg)\\b.*\\d+"),
+
         /** Tidak ada kategori yang cocok. */
         TIDAK_DIKENAL(null);
 
@@ -254,6 +258,7 @@ public class RegexMatcher {
         if (Kategori.CEK_KETERSEDIAAN.cocok(normal))  return Kategori.CEK_KETERSEDIAAN;
         if (Kategori.HARGA_PAKET.cocok(normal))       return Kategori.HARGA_PAKET;
         if (Kategori.INFO_TOKO.cocok(normal))         return Kategori.INFO_TOKO;
+        if (Kategori.REKOMENDASI_UKURAN.cocok(normal))   return Kategori.REKOMENDASI_UKURAN;
 
         // ── Prioritas 4: Sub-kategori busana (Sangat Spesifik) ───────────────
         // A. Cek built-in pattern (Kata kunci utama yang paling akurat)

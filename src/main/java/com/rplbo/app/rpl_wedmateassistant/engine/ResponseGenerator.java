@@ -239,6 +239,11 @@ public class ResponseGenerator {
                         "Harga mulai Rp 450.000/hari\n" +
                         "Ketik 'cek ketersediaan' untuk tanggal pilihan Anda.");
 
+        RESPON_DEFAULT.put(Kategori.REKOMENDASI_UKURAN,
+                "[ Rekomendasi Ukuran ]\n\n" +
+                        "Untuk memberikan rekomendasi ukuran yang akurat, silakan masukkan tinggi badan (cm) dan berat badan (kg) Anda.\n\n" +
+                        "Contoh: 'Tinggi saya 170cm dan berat 65kg'");
+
         RESPON_DEFAULT.put(Kategori.TIDAK_DIKENAL, FALLBACK);
     }
 
