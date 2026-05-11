@@ -87,12 +87,22 @@ public class ChatbotEngine {
 
         // ── 4. Coba generate respons dari pakaian DB jika kategori busana atau gender
         String responsPakaian = null;
-        if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
+        List<String> attachedImages = new ArrayList<>();
+        
+        boolean isDetailRequest = inputPengguna.toLowerCase().matches(".*\\b(detail|contoh|foto|gambar|spesifikasi|wujud|tampil|penampakan)\\b.*");
+
+        if (isDetailRequest) {
+            responsPakaian = generateDetailPakaian(inputPengguna, kategori, attachedImages);
+        } else if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
             responsPakaian = generateResponsGender(kategori);
         } else if (kategori == Kategori.REKOMENDASI_UKURAN) {
             responsPakaian = generateRekomendasiUkuran(inputPengguna);
-        } else {
-            responsPakaian = generateResponsPakaian(inputPengguna, kategori);
+        } else if (kategori != null && (kategori.name().startsWith("BUSANA_") || kategori == Kategori.LIHAT_BUSANA)) {
+            if (kategori == Kategori.LIHAT_BUSANA) {
+                 responsPakaian = null; // Biarkan fallback ke ResponseGenerator default
+            } else {
+                 responsPakaian = generateResponsPakaian(inputPengguna, kategori);
+            }
         }
 
         // ── 5. Generate respons final
@@ -107,7 +117,9 @@ public class ChatbotEngine {
                 inputPengguna, kategori,
                 entriDB != null ? "id=" + entriDB.getId() : "null");
 
-        return buatPesanBot(teksRespons, sesi);
+        Pesan pesanBot = buatPesanBot(teksRespons, sesi);
+        pesanBot.setImagePaths(attachedImages);
+        return pesanBot;
     }
 
     /**
@@ -159,8 +171,7 @@ public class ChatbotEngine {
 
     /**
      * Menghasilkan respons pakaian secara dinamis dari database berdasarkan
-     * kategori
-     * busana yang terdeteksi. Jika bukan kategori busana, kembalikan null.
+     * kategori busana yang terdeteksi. Jika bukan kategori busana, kembalikan null.
      */
     private String generateResponsGender(Kategori kategori) {
         if (kategori == null)
@@ -194,7 +205,7 @@ public class ChatbotEngine {
             sb.append("\n");
         }
 
-        sb.append("Ketik 'cek ketersediaan' untuk memastikan stok pada tanggal acara Anda.");
+        sb.append("Ketik 'detail [nama busana/kategori]' untuk melihat detail dan foto busana.");
         return sb.toString();
     }
 
@@ -291,8 +302,7 @@ public class ChatbotEngine {
 
     /**
      * Menghasilkan respons pakaian secara dinamis dari database berdasarkan
-     * kategori
-     * busana yang terdeteksi. Jika bukan kategori busana, kembalikan null.
+     * kategori busana yang terdeteksi. Jika bukan kategori busana, kembalikan null.
      */
     private String generateResponsPakaian(String input, Kategori kategori) {
         if (kategori == null)
@@ -337,7 +347,73 @@ public class ChatbotEngine {
             sb.append("\n");
         }
 
-        sb.append("Ketik 'cek ketersediaan' untuk memastikan stok pada tanggal acara Anda.");
+        sb.append("Ketik 'detail [nama busana/kategori]' untuk melihat detail dan foto busana.");
         return sb.toString();
+    }
+
+    private String getDbKategori(Kategori kategori) {
+        if (kategori == null) return null;
+        return switch (kategori) {
+            case BUSANA_MODERN -> "Modern";
+            case BUSANA_TRADISIONAL -> "Tradisional";
+            case BUSANA_MUSLIM -> "Muslim";
+            case BUSANA_INTERNASIONAL -> "Internasional";
+            case BUSANA_BERTEMA -> "Bertema";
+            case BUSANA_PREWEDDING -> "Pre-Wedding";
+            case BUSANA_KELUARGA -> "Keluarga";
+            case BUSANA_PESTA -> "Pesta";
+            default -> null;
+        };
+    }
+
+    private String generateDetailPakaian(String input, Kategori kategori, List<String> imagePaths) {
+        List<PakaianWedding> cocok = new ArrayList<>();
+        
+        if (kategori != null && kategori.name().startsWith("BUSANA_")) {
+            String dbKategori = getDbKategori(kategori);
+            if (dbKategori != null) {
+                cocok = daftarPakaian.stream().filter(p -> p.getKategori().equalsIgnoreCase(dbKategori)).toList();
+            } else if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
+                String genderTarget = kategori == Kategori.BUSANA_PRIA ? "Pria" : "Wanita";
+                cocok = daftarPakaian.stream().filter(p -> p.getGender() != null && 
+                        (p.getGender().equalsIgnoreCase(genderTarget) || p.getGender().equalsIgnoreCase("Unisex"))).toList();
+            }
+        }
+        
+        if (cocok.isEmpty()) {
+            String normal = input.toLowerCase().replaceAll("[^a-z0-9\\s]", " ");
+            String keyword = normal.replaceAll("\\b(detail|contoh|foto|gambar|spesifikasi|wujud|tampil|penampakan|busana|gaun|baju|pakaian)\\b", "").trim();
+            if (!keyword.isEmpty()) {
+                cocok = daftarPakaian.stream().filter(p -> p.getNama().toLowerCase().contains(keyword) || p.getKategori().toLowerCase().contains(keyword)).toList();
+            }
+        }
+
+        if (cocok.isEmpty()) {
+            return "Mohon maaf, saya belum menemukan detail foto untuk pencarian tersebut. Bisa sebutkan kategori atau nama busana yang lebih spesifik?";
+        }
+
+        int maxItems = 4;
+        List<PakaianWedding> hasilLimit = cocok.size() > maxItems ? cocok.subList(0, maxItems) : cocok;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ Detail & Foto Busana ]\n\n");
+        for (PakaianWedding p : hasilLimit) {
+            sb.append("• ").append(p.getNama()).append("\n");
+            sb.append("  Kategori : ").append(p.getKategori()).append("\n");
+            if (p.getDeskripsi() != null && !p.getDeskripsi().isEmpty()) {
+                sb.append("  Detail   : ").append(p.getDeskripsi()).append("\n");
+            }
+            sb.append("  Harga    : Rp ").append(String.format("%,d", (long) p.getHargaSewa())).append("/hari\n\n");
+            
+            if (p.getImagePath() != null && !p.getImagePath().isEmpty()) {
+                imagePaths.add(p.getImagePath());
+            }
+        }
+        
+        if (cocok.size() > maxItems) {
+            sb.append("... dan ").append(cocok.size() - maxItems).append(" busana lainnya. Ketik nama busana yang lebih spesifik untuk melihat detail lainnya.");
+        }
+
+        return sb.toString().trim();
     }
 }

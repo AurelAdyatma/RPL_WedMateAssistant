@@ -143,6 +143,8 @@ public class DatabaseManager {
                 harga_sewa     REAL    NOT NULL DEFAULT 0,
                 gender         TEXT    NOT NULL DEFAULT 'Unisex',
                 tersedia       INTEGER NOT NULL DEFAULT 1,
+                deskripsi      TEXT,
+                foto_path      TEXT,
                 tgl_tersedia   TEXT
             );
             """,
@@ -196,6 +198,16 @@ public class DatabaseManager {
             // Migrasi untuk database yang sudah ada
             try {
                 stmt.execute("ALTER TABLE pakaian_wedding ADD COLUMN gender TEXT NOT NULL DEFAULT 'Unisex'");
+            } catch (SQLException ignore) {
+                // Kolom sudah ada
+            }
+            try {
+                stmt.execute("ALTER TABLE pakaian_wedding ADD COLUMN deskripsi TEXT");
+            } catch (SQLException ignore) {
+                // Kolom sudah ada
+            }
+            try {
+                stmt.execute("ALTER TABLE pakaian_wedding ADD COLUMN foto_path TEXT");
             } catch (SQLException ignore) {
                 // Kolom sudah ada
             }

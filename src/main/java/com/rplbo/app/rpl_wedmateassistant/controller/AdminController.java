@@ -400,15 +400,39 @@ public class AdminController {
         fUkuran.setPromptText("S,M,L,XL");
         TextField fHarga   = new TextField(isEdit ? String.valueOf((long)existing.getHargaSewa()) : "");
         fHarga.setPromptText("Harga dalam Rupiah");
+        
+        TextArea fDeskripsi = new TextArea(isEdit && existing.getDeskripsi() != null ? existing.getDeskripsi() : "");
+        fDeskripsi.setPromptText("Deskripsi detail busana");
+        fDeskripsi.setPrefRowCount(3);
+        fDeskripsi.setWrapText(true);
+
+        TextField fFoto = new TextField(isEdit && existing.getImagePath() != null ? existing.getImagePath() : "");
+        fFoto.setPromptText("URL atau path gambar");
+        Button btnBrowse = new Button("...");
+        btnBrowse.setOnAction(e -> {
+            javafx.stage.FileChooser fc = new javafx.stage.FileChooser();
+            fc.setTitle("Pilih Foto Busana");
+            fc.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"));
+            java.io.File file = fc.showOpenDialog(dialog.getDialogPane().getScene().getWindow());
+            if (file != null) {
+                // Konversi path absolut lokal ke format URI file:
+                fFoto.setText("file:" + file.getAbsolutePath().replace("\\", "/"));
+            }
+        });
+        javafx.scene.layout.HBox boxFoto = new javafx.scene.layout.HBox(5, fFoto, btnBrowse);
+        javafx.scene.layout.HBox.setHgrow(fFoto, javafx.scene.layout.Priority.ALWAYS);
+
         CheckBox  cbTersedia = new CheckBox("Tersedia");
         cbTersedia.setSelected(!isEdit || existing.isTersedia());
 
-        grid.addRow(0, new Label("Nama:"),    fNama);
-        grid.addRow(1, new Label("Jenis:"),   cbJenis);
-        grid.addRow(2, new Label("Gender:"),  cbGender);
-        grid.addRow(3, new Label("Ukuran:"),  fUkuran);
-        grid.addRow(4, new Label("Harga:"),   fHarga);
-        grid.addRow(5, new Label(""),         cbTersedia);
+        grid.addRow(0, new Label("Nama:"),      fNama);
+        grid.addRow(1, new Label("Jenis:"),     cbJenis);
+        grid.addRow(2, new Label("Gender:"),    cbGender);
+        grid.addRow(3, new Label("Ukuran:"),    fUkuran);
+        grid.addRow(4, new Label("Harga:"),     fHarga);
+        grid.addRow(5, new Label("Deskripsi:"), fDeskripsi);
+        grid.addRow(6, new Label("Foto:"),      boxFoto);
+        grid.addRow(7, new Label(""),           cbTersedia);
         dialog.getDialogPane().setContent(grid);
 
         dialog.setResultConverter(btn -> {
@@ -418,6 +442,8 @@ public class AdminController {
                 p.setKategori(cbJenis.getValue());
                 p.setGender(cbGender.getValue());
                 p.setUkuranTersedia(fUkuran.getText().trim());
+                p.setDeskripsi(fDeskripsi.getText().trim());
+                p.setImagePath(fFoto.getText().trim());
                 try { p.setHargaSewa(Double.parseDouble(fHarga.getText().trim())); } catch (NumberFormatException ex) { p.setHargaSewa(0); }
                 p.setTersedia(cbTersedia.isSelected());
                 return p;

@@ -73,7 +73,7 @@ public class PakaianDAO {
     }
 
     public boolean save(PakaianWedding pakaian) {
-        String sql = "INSERT INTO pakaian_wedding (nama, jenis, ukuran, harga_sewa, gender, tersedia) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pakaian_wedding (nama, jenis, ukuran, harga_sewa, gender, tersedia, deskripsi, foto_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, pakaian.getNama());
@@ -82,6 +82,8 @@ public class PakaianDAO {
             stmt.setDouble(4, pakaian.getHargaSewa());
             stmt.setString(5, pakaian.getGender() != null ? pakaian.getGender() : "Unisex");
             stmt.setInt(6, pakaian.isTersedia() ? 1 : 0);
+            stmt.setString(7, pakaian.getDeskripsi());
+            stmt.setString(8, pakaian.getImagePath());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -90,7 +92,7 @@ public class PakaianDAO {
     }
 
     public boolean update(PakaianWedding pakaian) {
-        String sql = "UPDATE pakaian_wedding SET nama = ?, jenis = ?, ukuran = ?, harga_sewa = ?, gender = ?, tersedia = ? WHERE id = ?";
+        String sql = "UPDATE pakaian_wedding SET nama = ?, jenis = ?, ukuran = ?, harga_sewa = ?, gender = ?, tersedia = ?, deskripsi = ?, foto_path = ? WHERE id = ?";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, pakaian.getNama());
@@ -99,7 +101,9 @@ public class PakaianDAO {
             stmt.setDouble(4, pakaian.getHargaSewa());
             stmt.setString(5, pakaian.getGender() != null ? pakaian.getGender() : "Unisex");
             stmt.setInt(6, pakaian.isTersedia() ? 1 : 0);
-            stmt.setInt(7, pakaian.getId());
+            stmt.setString(7, pakaian.getDeskripsi());
+            stmt.setString(8, pakaian.getImagePath());
+            stmt.setInt(9, pakaian.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -119,6 +123,26 @@ public class PakaianDAO {
         }
     }
 
+    /** Mencari pakaian berdasarkan keyword di nama atau deskripsi. */
+    public List<PakaianWedding> findByNamaContaining(String keyword) {
+        List<PakaianWedding> list = new ArrayList<>();
+        String sql = "SELECT * FROM pakaian_wedding WHERE LOWER(nama) LIKE ? OR LOWER(deskripsi) LIKE ?";
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            String likeParam = "%" + keyword.toLowerCase() + "%";
+            stmt.setString(1, likeParam);
+            stmt.setString(2, likeParam);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapToPakaian(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     private PakaianWedding mapToPakaian(ResultSet rs) throws SQLException {
         PakaianWedding p = new PakaianWedding();
         p.setId(rs.getInt("id"));
@@ -130,6 +154,16 @@ public class PakaianDAO {
             p.setGender(rs.getString("gender"));
         } catch (SQLException e) {
             p.setGender("Unisex"); // fallback
+        }
+        try {
+            p.setDeskripsi(rs.getString("deskripsi"));
+        } catch (SQLException e) {
+            p.setDeskripsi("");
+        }
+        try {
+            p.setImagePath(rs.getString("foto_path"));
+        } catch (SQLException e) {
+            p.setImagePath(null);
         }
         p.setTersedia(rs.getInt("tersedia") == 1);
         return p;

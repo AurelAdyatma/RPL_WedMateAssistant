@@ -1,6 +1,8 @@
 package com.rplbo.app.rpl_wedmateassistant.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Merepresentasikan satu pesan dalam percakapan (baik dari user maupun bot).
@@ -11,6 +13,7 @@ public class Pesan {
     private String        isiPesan;
     private boolean       dariBot;      // true = pesan dari bot, false = dari user
     private LocalDateTime waktuKirim;
+    private List<String>  imagePaths = new ArrayList<>();
 
     // ── Constructors ──────────────────────────────────────────────────────────
 
@@ -41,6 +44,11 @@ public class Pesan {
 
     public LocalDateTime getWaktuKirim()                     { return waktuKirim; }
     public void          setWaktuKirim(LocalDateTime w)      { this.waktuKirim = w; }
+
+    public List<String>  getImagePaths()                     { return imagePaths; }
+    public void          setImagePaths(List<String> paths)   { this.imagePaths = paths != null ? paths : new ArrayList<>(); }
+    public void          addImagePath(String path)           { if (path != null && !path.isBlank()) imagePaths.add(path); }
+    public boolean       hasImages()                         { return imagePaths != null && !imagePaths.isEmpty(); }
 
     @Override
     public String toString() {

@@ -44,49 +44,49 @@ public class DataSeeder {
     // ── Pakaian Wedding ───────────────────────────────────────────────────────
 
     private void seedPakaian(Connection conn) throws SQLException {
-        String sql = "INSERT INTO pakaian_wedding (nama, jenis, ukuran, harga_sewa, gender, tersedia) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pakaian_wedding (nama, jenis, ukuran, harga_sewa, gender, tersedia, deskripsi) VALUES (?, ?, ?, ?, ?, ?, ?)";
         Object[][] data = {
             // Busana Modern
-            {"Gaun Ball Gown Ivory",          "Modern",       "S,M,L",    1_500_000, "Wanita", 1},
-            {"Gaun A-Line Champagne",          "Modern",       "XS,S,M",   1_200_000, "Wanita", 1},
-            {"Gaun Mermaid Ivory",             "Modern",       "S,M",      1_800_000, "Wanita", 1},
-            {"Tuxedo Pria Classic Black",      "Modern",       "M,L,XL",   900_000,   "Pria",   1},
-            {"Jas Formal Navy Blue",           "Modern",       "M,L,XL",   750_000,   "Pria",   1},
+            {"Gaun Ball Gown Ivory",          "Modern",       "S,M,L",    1_500_000, "Wanita", 1, "Gaun pengantin bergaya ball gown dengan rok mengembang megah, bahan satin dan tulle berlapis. Detail payet halus di bagian bodice. Cocok untuk pernikahan mewah di ballroom."},
+            {"Gaun A-Line Champagne",          "Modern",       "XS,S,M",   1_200_000, "Wanita", 1, "Gaun elegan dengan siluet A-Line yang universally flattering. Warna champagne lembut dengan aksen lace di bagian atas. Ideal untuk outdoor wedding."},
+            {"Gaun Mermaid Ivory",             "Modern",       "S,M",      1_800_000, "Wanita", 1, "Gaun mermaid yang menonjolkan lekuk tubuh dengan detail beading di seluruh badan. Ekor panjang yang dramatis untuk kesan glamor maksimal."},
+            {"Tuxedo Pria Classic Black",      "Modern",       "M,L,XL",   900_000,   "Pria",   1, "Tuxedo klasik hitam dengan lapel satin, termasuk kemeja putih dan dasi kupu-kupu. Potongan slim-fit modern yang elegan."},
+            {"Jas Formal Navy Blue",           "Modern",       "M,L,XL",   750_000,   "Pria",   1, "Jas formal warna navy blue dengan potongan tailored. Bahan wool blend premium yang nyaman sepanjang hari."},
 
             // Busana Tradisional Jawa
-            {"Kebaya Kutubaru Hijau Toska",    "Tradisional",  "S,M,L",    1_000_000, "Wanita", 1},
-            {"Kebaya Paes Ageng Gold",         "Tradisional",  "S,M",      2_000_000, "Wanita", 1},
-            {"Beskap Pria Hitam Blangkon",     "Tradisional",  "M,L,XL",   1_200_000, "Pria",   1},
-            {"Kebaya Sunda Merah Marun",       "Tradisional",  "S,M,L",    950_000,   "Wanita", 1},
-            {"Baju Adat Jawa Jogja Set",       "Tradisional",  "M,L",      1_500_000, "Unisex", 1},
+            {"Kebaya Kutubaru Hijau Toska",    "Tradisional",  "S,M,L",    1_000_000, "Wanita", 1, "Kebaya kutubaru khas Jawa dengan warna hijau toska elegan. Bordir benang emas motif bunga melati. Dilengkapi kain batik parang dan selendang."},
+            {"Kebaya Paes Ageng Gold",         "Tradisional",  "S,M",      2_000_000, "Wanita", 1, "Set lengkap busana pengantin Jawa gaya Paes Ageng Solo. Kebaya bludru warna emas dengan detail bordir tangan. Termasuk mahkota, kalung, dan aksesoris lengkap."},
+            {"Beskap Pria Hitam Blangkon",     "Tradisional",  "M,L,XL",   1_200_000, "Pria",   1, "Beskap Jawa warna hitam dengan detail bordir emas di kerah dan lengan. Dilengkapi blangkon khas Jawa dan kain batik."},
+            {"Kebaya Sunda Merah Marun",       "Tradisional",  "S,M,L",    950_000,   "Wanita", 1, "Kebaya Sunda dengan warna merah marun mewah. Bordir motif khas Sunda dengan aksen payet. Cocok dipadukan dengan siger Sunda."},
+            {"Baju Adat Jawa Jogja Set",       "Tradisional",  "M,L",      1_500_000, "Unisex", 1, "Set lengkap busana adat Jawa Yogyakarta untuk pasangan. Termasuk kebaya dan beskap dengan motif batik kawung khas keraton Jogja."},
 
             // Busana Muslim
-            {"Gaun Muslimah Syar'i Putih",    "Muslim",       "S,M,L,XL", 1_100_000, "Wanita", 1},
-            {"Kebaya Muslim Modern Blush",     "Muslim",       "S,M,L",    900_000,   "Wanita", 1},
-            {"Setelan Koko Pria Putih",        "Muslim",       "M,L,XL",   600_000,   "Pria",   1},
+            {"Gaun Muslimah Syar'i Putih",    "Muslim",       "S,M,L,XL", 1_100_000, "Wanita", 1, "Gaun pengantin muslimah syar'i full covered dengan warna putih bersih. Bahan silk organza dengan detail mutiara di bagian dada dan lengan."},
+            {"Kebaya Muslim Modern Blush",     "Muslim",       "S,M,L",    900_000,   "Wanita", 1, "Kebaya muslim modern warna blush pink dengan hijab matching. Potongan longgar yang anggun dengan bordir floral."},
+            {"Setelan Koko Pria Putih",        "Muslim",       "M,L,XL",   600_000,   "Pria",   1, "Setelan baju koko pria putih premium dengan bordir halus di bagian dada. Bahan katun high-quality yang adem dan nyaman."},
 
             // Busana Internasional
-            {"Hanbok Wanita Biru Muda",        "Internasional","S,M",      1_300_000, "Wanita", 1},
-            {"Kimono Furisode Sakura",         "Internasional","S,M,L",    1_600_000, "Wanita", 1},
-            {"Cheongsam Merah Emas",           "Internasional","S,M",      1_100_000, "Wanita", 1},
+            {"Hanbok Wanita Biru Muda",        "Internasional","S,M",      1_300_000, "Wanita", 1, "Hanbok tradisional Korea dengan jeogori biru muda dan chima putih mengembang. Bahan sutra dengan motif bordir bunga tradisional Korea."},
+            {"Kimono Furisode Sakura",         "Internasional","S,M,L",    1_600_000, "Wanita", 1, "Furisode Jepang dengan motif bunga sakura di atas kain sutra merah. Lengan panjang menjuntai khas kimono formal untuk acara spesial."},
+            {"Cheongsam Merah Emas",           "Internasional","S,M",      1_100_000, "Wanita", 1, "Cheongsam/Qipao klasik Tionghoa warna merah dengan bordir naga emas. Potongan body-hugging dengan belahan samping elegan."},
 
             // Busana Bertema
-            {"Gaun Vintage Lace Cream",        "Bertema",      "S,M,L",    1_200_000, "Wanita", 1},
-            {"Bohemian Bridal Set Flower",     "Bertema",      "S,M",      1_000_000, "Wanita", 1},
-            {"Royal Ballgown Deep Blue",       "Bertema",      "S,M,L",    2_200_000, "Wanita", 1},
+            {"Gaun Vintage Lace Cream",        "Bertema",      "S,M,L",    1_200_000, "Wanita", 1, "Gaun bergaya vintage 1920s dengan full lace cream. Detail scallop di bagian hem dan lengan. Cocok untuk pernikahan bertema retro."},
+            {"Bohemian Bridal Set Flower",     "Bertema",      "S,M",      1_000_000, "Wanita", 1, "Set busana bohemian dengan gaun flowing dan flower crown. Bahan chiffon ringan dengan detail crochet. Sempurna untuk garden wedding."},
+            {"Royal Ballgown Deep Blue",       "Bertema",      "S,M,L",    2_200_000, "Wanita", 1, "Gaun ballgown kerajaan warna deep blue royal dengan detail kristal Swarovski. Termasuk tiara dan sarung tangan panjang untuk kesan regal."},
 
             // Busana Pre-Wedding
-            {"Couple Set Casual Denim",        "Pre-Wedding",  "XS-XL",    500_000,   "Unisex", 1},
-            {"Outdoor Bohemian Couple",        "Pre-Wedding",  "S,M,L",    700_000,   "Unisex", 1},
+            {"Couple Set Casual Denim",        "Pre-Wedding",  "XS-XL",    500_000,   "Unisex", 1, "Set couple kasual denim untuk sesi foto pre-wedding outdoor. Termasuk jaket denim pria dan dress denim wanita yang matching."},
+            {"Outdoor Bohemian Couple",        "Pre-Wedding",  "S,M,L",    700_000,   "Unisex", 1, "Set couple bertema bohemian untuk foto outdoor. Gaun flowy wanita dan kemeja linen pria dengan warna earthy tone yang serasi."},
 
             // Busana Keluarga
-            {"Kebaya Ibu Pengantin Biru",      "Keluarga",     "S,M,L,XL", 800_000,   "Wanita", 1},
-            {"Batik Bapak Pengantin Coklat",   "Keluarga",     "M,L,XL",   650_000,   "Pria",   1},
-            {"Set Pagar Ayu 5 Orang",          "Keluarga",     "S,M",      350_000,   "Wanita", 1},
+            {"Kebaya Ibu Pengantin Biru",      "Keluarga",     "S,M,L,XL", 800_000,   "Wanita", 1, "Kebaya elegan untuk ibu pengantin warna biru safir. Bordir halus dengan payet, termasuk kain batik dan selendang matching."},
+            {"Batik Bapak Pengantin Coklat",   "Keluarga",     "M,L,XL",   650_000,   "Pria",   1, "Kemeja batik premium untuk bapak pengantin warna coklat tua. Motif batik parang khas Jawa dengan bahan sutra halus."},
+            {"Set Pagar Ayu 5 Orang",          "Keluarga",     "S,M",      350_000,   "Wanita", 1, "Set kebaya seragam untuk 5 pagar ayu. Tersedia dalam berbagai pilihan warna pastel. Termasuk kain batik dan aksesoris rambut."},
 
             // Busana Pesta
-            {"Gaun Cocktail Navy",             "Pesta",        "XS,S,M,L", 600_000,   "Wanita", 1},
-            {"Blazer Elegan Pria Abu",         "Pesta",        "M,L,XL",   500_000,   "Pria",   1},
+            {"Gaun Cocktail Navy",             "Pesta",        "XS,S,M,L", 600_000,   "Wanita", 1, "Gaun cocktail navy blue midi length dengan detail off-shoulder. Bahan satin premium dengan aksen pita di bagian pinggang."},
+            {"Blazer Elegan Pria Abu",         "Pesta",        "M,L,XL",   500_000,   "Pria",   1, "Blazer semi-formal abu-abu dengan potongan modern slim-fit. Cocok untuk acara dinner party, wisuda, atau resepsi pernikahan."},
         };
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -97,6 +97,7 @@ public class DataSeeder {
                 stmt.setDouble(4, ((Number) row[3]).doubleValue());
                 stmt.setString(5, (String)  row[4]);
                 stmt.setInt(6,    ((Number) row[5]).intValue());
+                stmt.setString(7, (String)  row[6]);
                 stmt.addBatch();
             }
             stmt.executeBatch();

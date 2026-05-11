@@ -234,7 +234,7 @@ public class ChatController {
 
         // Tampilkan bubble bot
         if (pesanBot != null && pesanBot.getIsiPesan() != null) {
-            tambahBubbleBot(pesanBot.getIsiPesan(), pesanBot.getWaktuKirim());
+            tambahBubbleBot(pesanBot.getIsiPesan(), pesanBot.getWaktuKirim(), pesanBot.getImagePaths());
         }
     }
 
@@ -247,7 +247,7 @@ public class ChatController {
         Pesan pesanSalam = new Pesan(sesiAktif.getId(), salam, true);
         sesiAktif.getDaftarPesan().add(pesanSalam);
 
-        tambahBubbleBot(salam, LocalDateTime.now());
+        tambahBubbleBot(salam, LocalDateTime.now(), null);
         tampilkanQuickReply();
     }
 
@@ -287,7 +287,7 @@ public class ChatController {
      * Membuat dan menambahkan bubble pesan BOT ke chatBox.
      * Rata kiri, warna abu gelap (#2C2C4A), dengan avatar kecil.
      */
-    private void tambahBubbleBot(String teks, LocalDateTime waktu) {
+    private void tambahBubbleBot(String teks, LocalDateTime waktu, List<String> images) {
         // Avatar inisial bot
         StackPane avatar = new StackPane(new Label("W"));
         avatar.setStyle("-fx-background-color: #D97706; -fx-background-radius: 18; -fx-min-width: 36; -fx-min-height: 36;");
@@ -299,12 +299,49 @@ public class ChatController {
         lblPesan.setMaxWidth(420);
         lblPesan.setWrapText(true);
 
+        // Kontainer pesan teks dan gambar
+        VBox contentBox = new VBox(8);
+        contentBox.getChildren().add(lblPesan);
+
+        // Jika ada gambar, tambahkan ImageView
+        if (images != null && !images.isEmpty()) {
+            // Kita bungkus gambar-gambar dalam FlowPane agar wrap jika banyak
+            FlowPane imagePane = new FlowPane();
+            imagePane.setHgap(8);
+            imagePane.setVgap(8);
+            imagePane.setMaxWidth(420);
+            
+            for (String imgPath : images) {
+                try {
+                    // Coba muat gambar dari URL/path file dengan resolusi lebih tinggi
+                    javafx.scene.image.Image img = new javafx.scene.image.Image(imgPath, 280, 400, true, true, true);
+                    javafx.scene.image.ImageView imgView = new javafx.scene.image.ImageView(img);
+                    imgView.setFitWidth(280);
+                    imgView.setFitHeight(400);
+                    imgView.setPreserveRatio(true);
+                    
+                    // Beri border/style pada gambar
+                    imgView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);");
+                    
+                    // Agar bisa di-klik dan diperbesar (bisa dikembangkan nanti)
+                    imgView.setCursor(javafx.scene.Cursor.HAND);
+                    
+                    imagePane.getChildren().add(imgView);
+                } catch (Exception e) {
+                    System.err.println("Gagal memuat gambar dari path: " + imgPath);
+                }
+            }
+            if (!imagePane.getChildren().isEmpty()) {
+                contentBox.getChildren().add(imagePane);
+            }
+        }
+
         // Timestamp
         Label lblTime = new Label(waktu != null ? waktu.format(TIME_FMT) : "");
         lblTime.setStyle("-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-padding: 2 0 0 4;");
 
-        // VBox: pesan + timestamp
-        VBox vBox = new VBox(2, lblPesan, lblTime);
+        // VBox utama: konten (pesan+gambar) + timestamp
+        VBox vBox = new VBox(4, contentBox, lblTime);
         vBox.setAlignment(Pos.CENTER_LEFT);
 
         // Wrapper rata kiri: avatar + konten
