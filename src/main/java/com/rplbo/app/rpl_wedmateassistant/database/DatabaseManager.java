@@ -144,7 +144,7 @@ public class DatabaseManager {
                 gender         TEXT    NOT NULL DEFAULT 'Unisex',
                 tersedia       INTEGER NOT NULL DEFAULT 1,
                 deskripsi      TEXT,
-                foto_path      TEXT,
+                foto_data      BLOB,
                 tgl_tersedia   TEXT
             );
             """,
@@ -207,7 +207,7 @@ public class DatabaseManager {
                 // Kolom sudah ada
             }
             try {
-                stmt.execute("ALTER TABLE pakaian_wedding ADD COLUMN foto_path TEXT");
+                stmt.execute("ALTER TABLE pakaian_wedding ADD COLUMN foto_data BLOB");
             } catch (SQLException ignore) {
                 // Kolom sudah ada
             }

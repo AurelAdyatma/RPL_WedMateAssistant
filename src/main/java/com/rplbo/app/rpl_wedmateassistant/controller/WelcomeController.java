@@ -58,7 +58,7 @@ public class WelcomeController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/rplbo/app/rpl_wedmateassistant/view/Login.fxml"));
                 Parent root = loader.load();
                 
-                Scene scene = new Scene(root, 900, 600);
+                Scene scene = new Scene(root, 1280, 800);
                 stage.setScene(scene);
                 stage.setTitle("WedMate - Login Admin");
             } else {
@@ -69,7 +69,7 @@ public class WelcomeController {
                 User mockUser = new User(1, "user", "password", "Pengguna", "user@example.com", "08123456789");
                 chatController.setUserLogin(mockUser);
                 
-                Scene scene = new Scene(root, 900, 600);
+                Scene scene = new Scene(root, 1280, 800);
                 stage.setScene(scene);
                 stage.setTitle("WedMate Assistant - Chatbot");
             }

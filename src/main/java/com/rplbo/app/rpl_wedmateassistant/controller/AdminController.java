@@ -87,7 +87,7 @@ public class AdminController {
                 getClass().getResource("/com/rplbo/app/rpl_wedmateassistant/view/Login.fxml")
             );
             Parent root = loader.load();
-            stage.setScene(new Scene(root, 900, 600));
+            stage.setScene(new Scene(root, 1280, 800));
             stage.setTitle("WedMate - Login");
             stage.centerOnScreen();
         } catch (IOException e) {
@@ -329,7 +329,7 @@ public class AdminController {
         fPertanyaan.setPromptText("Misal: cara pesan, reservasi, booking");
         
         TextArea  fJawaban    = new TextArea(isEdit ? existing.getJawaban() : "");
-        fJawaban.setPromptText("Teks yang akan dibalas oleh chatbot...");
+        fJawaban.setPromptText("Teks yang akan dibalas oleh chatbot");
         fJawaban.setPrefRowCount(5);
         fJawaban.setWrapText(true);
         
@@ -406,21 +406,55 @@ public class AdminController {
         fDeskripsi.setPrefRowCount(3);
         fDeskripsi.setWrapText(true);
 
-        TextField fFoto = new TextField(isEdit && existing.getImagePath() != null ? existing.getImagePath() : "");
-        fFoto.setPromptText("URL atau path gambar");
-        Button btnBrowse = new Button("...");
+        // ── Foto: simpan sebagai byte[] BLOB, bukan path ──
+        // Holder untuk data gambar yang dipilih
+        final byte[][] selectedImageData = { isEdit ? existing.getImageData() : null };
+
+        Label lblFotoStatus = new Label(isEdit && existing.hasImage() ? "✓ Foto tersimpan di database" : "Belum ada foto");
+        lblFotoStatus.setStyle("-fx-text-fill: #64748B; -fx-font-size: 12px;");
+
+        // Preview gambar jika ada data BLOB yang sudah tersimpan
+        javafx.scene.image.ImageView imgPreview = new javafx.scene.image.ImageView();
+        imgPreview.setFitWidth(120);
+        imgPreview.setFitHeight(160);
+        imgPreview.setPreserveRatio(true);
+        if (isEdit && existing.hasImage()) {
+            try {
+                java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(existing.getImageData());
+                imgPreview.setImage(new javafx.scene.image.Image(bais));
+            } catch (Exception ignored) {}
+        }
+
+        Button btnBrowse = new Button("Pilih Foto");
         btnBrowse.setOnAction(e -> {
             javafx.stage.FileChooser fc = new javafx.stage.FileChooser();
             fc.setTitle("Pilih Foto Busana");
             fc.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"));
             java.io.File file = fc.showOpenDialog(dialog.getDialogPane().getScene().getWindow());
             if (file != null) {
-                // Konversi path absolut lokal ke format URI file:
-                fFoto.setText("file:" + file.getAbsolutePath().replace("\\", "/"));
+                try {
+                    selectedImageData[0] = java.nio.file.Files.readAllBytes(file.toPath());
+                    lblFotoStatus.setText("✓ " + file.getName() + " (" + (selectedImageData[0].length / 1024) + " KB)");
+                    lblFotoStatus.setStyle("-fx-text-fill: #16A34A; -fx-font-size: 12px;");
+                    // Update preview
+                    java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(selectedImageData[0]);
+                    imgPreview.setImage(new javafx.scene.image.Image(bais));
+                } catch (Exception ex) {
+                    showAlert(Alert.AlertType.ERROR, "Gagal membaca file gambar: " + ex.getMessage());
+                }
             }
         });
-        javafx.scene.layout.HBox boxFoto = new javafx.scene.layout.HBox(5, fFoto, btnBrowse);
-        javafx.scene.layout.HBox.setHgrow(fFoto, javafx.scene.layout.Priority.ALWAYS);
+
+        Button btnHapusFoto = new Button("Hapus Foto");
+        btnHapusFoto.setOnAction(e -> {
+            selectedImageData[0] = null;
+            lblFotoStatus.setText("Foto dihapus");
+            lblFotoStatus.setStyle("-fx-text-fill: #DC2626; -fx-font-size: 12px;");
+            imgPreview.setImage(null);
+        });
+
+        javafx.scene.layout.HBox boxButtons = new javafx.scene.layout.HBox(5, btnBrowse, btnHapusFoto);
+        VBox boxFoto = new VBox(5, boxButtons, lblFotoStatus, imgPreview);
 
         CheckBox  cbTersedia = new CheckBox("Tersedia");
         cbTersedia.setSelected(!isEdit || existing.isTersedia());
@@ -443,7 +477,7 @@ public class AdminController {
                 p.setGender(cbGender.getValue());
                 p.setUkuranTersedia(fUkuran.getText().trim());
                 p.setDeskripsi(fDeskripsi.getText().trim());
-                p.setImagePath(fFoto.getText().trim());
+                p.setImageData(selectedImageData[0]);
                 try { p.setHargaSewa(Double.parseDouble(fHarga.getText().trim())); } catch (NumberFormatException ex) { p.setHargaSewa(0); }
                 p.setTersedia(cbTersedia.isSelected());
                 return p;
@@ -500,9 +534,21 @@ public class AdminController {
     // ── Helper ────────────────────────────────────────────────────────────────
     private GridPane buatGrid() {
         GridPane g = new GridPane();
-        g.setHgap(12); g.setVgap(10);
-        g.setPadding(new Insets(20));
-        g.setPrefWidth(500);
+        g.setHgap(15); 
+        g.setVgap(12);
+        g.setPadding(new Insets(25));
+        g.setPrefWidth(600); // Widened from 500
+
+        // Explicitly set column widths to prevent truncation (...)
+        javafx.scene.layout.ColumnConstraints col1 = new javafx.scene.layout.ColumnConstraints();
+        col1.setMinWidth(120);
+        col1.setPrefWidth(120);
+        
+        javafx.scene.layout.ColumnConstraints col2 = new javafx.scene.layout.ColumnConstraints();
+        col2.setHgrow(javafx.scene.layout.Priority.ALWAYS);
+        
+        g.getColumnConstraints().addAll(col1, col2);
+        
         return g;
     }
 

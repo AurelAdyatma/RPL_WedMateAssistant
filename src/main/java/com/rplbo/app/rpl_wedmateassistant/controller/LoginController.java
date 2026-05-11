@@ -34,7 +34,7 @@ public class LoginController {
             Stage stage = (Stage) btnLogin.getScene().getWindow();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/rplbo/app/rpl_wedmateassistant/view/Welcome.fxml"));
             Parent root = loader.load();
-            Scene scene = new Scene(root, 900, 600);
+            Scene scene = new Scene(root, 1280, 800);
             stage.setScene(scene);
             stage.setTitle("Welcome to WedMate");
             stage.centerOnScreen();
@@ -82,7 +82,7 @@ public class LoginController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlFile));
         Parent root = loader.load();
 
-        Scene scene = new Scene(root, 900, 600);
+        Scene scene = new Scene(root, 1280, 800);
         stage.setScene(scene);
         stage.setTitle(title);
         stage.centerOnScreen();
@@ -99,7 +99,7 @@ public class LoginController {
         ChatController chatController = loader.getController();
         chatController.setUserLogin(user);
 
-        Scene scene = new Scene(root, 900, 600);
+        Scene scene = new Scene(root, 1280, 800);
         stage.setScene(scene);
         stage.setTitle("WedMate Assistant");
         stage.centerOnScreen();
