@@ -4,10 +4,12 @@ import com.rplbo.app.rpl_wedmateassistant.database.DatabaseManager;
 import com.rplbo.app.rpl_wedmateassistant.database.DataSeeder;
 import com.rplbo.app.rpl_wedmateassistant.database.KnowledgeBaseDAO;
 import com.rplbo.app.rpl_wedmateassistant.database.PakaianDAO;
+import com.rplbo.app.rpl_wedmateassistant.database.PaketDAO;
 import com.rplbo.app.rpl_wedmateassistant.engine.ChatbotEngine;
 import com.rplbo.app.rpl_wedmateassistant.engine.RegexMatcher.Kategori;
 import com.rplbo.app.rpl_wedmateassistant.model.EntriKnowledge;
 import com.rplbo.app.rpl_wedmateassistant.model.PakaianWedding;
+import com.rplbo.app.rpl_wedmateassistant.model.PaketSewa;
 import com.rplbo.app.rpl_wedmateassistant.model.Pesan;
 import com.rplbo.app.rpl_wedmateassistant.model.Sesi;
 import com.rplbo.app.rpl_wedmateassistant.model.User;
@@ -63,6 +65,7 @@ public class ChatController {
     private final ChatbotEngine      engine           = new ChatbotEngine();
     private final KnowledgeBaseDAO   knowledgeDAO     = new KnowledgeBaseDAO();
     private final PakaianDAO         pakaianDAO       = new PakaianDAO();
+    private final PaketDAO           paketDAO         = new PaketDAO();
     private final DateTimeFormatter  TIME_FMT         =
             DateTimeFormatter.ofPattern("HH:mm");
 
@@ -209,6 +212,7 @@ public class ChatController {
             System.err.println("[ChatController] Gagal load knowledge base: " + e.getMessage());
             engine.setDaftarEntri(new ArrayList<>());
         }
+
         try {
             List<PakaianWedding> pakaian = pakaianDAO.findAll();
             engine.setDaftarPakaian(pakaian != null ? pakaian : new ArrayList<>());
@@ -217,12 +221,22 @@ public class ChatController {
             System.err.println("[ChatController] Gagal load pakaian: " + e.getMessage());
             engine.setDaftarPakaian(new ArrayList<>());
         }
+
+        try {
+            List<PaketSewa> paket = paketDAO.findAll();
+            engine.setDaftarPaket(paket != null ? paket : new ArrayList<>());
+            System.out.println("[ChatController] Paket sewa dimuat: " + (paket != null ? paket.size() : 0) + " paket.");
+        } catch (Exception e) {
+            System.err.println("[ChatController] Gagal load paket sewa: " + e.getMessage());
+            engine.setDaftarPaket(new ArrayList<>());
+        }
     }
 
     // ═════════════════════════════════════════════════════════════════════════
     // Private — Chatbot Processing
     // ═════════════════════════════════════════════════════════════════════════
 
+    /** Memproses input pengguna via engine dan menampilkan balasan bot. */
     /** Memproses input pengguna via engine dan menampilkan balasan bot. */
     private void prosesInputDanBalas(String inputPengguna) {
         // Simpan pesan user ke sesi
@@ -241,8 +255,8 @@ public class ChatController {
     /** Menampilkan salam awal bot saat sesi baru dimulai. */
     private void tampilkanSalamAwal() {
         String salam = "Halo! Selamat datang di WedMate Assistant.\n" +
-                       "Saya siap membantu Anda menemukan busana pernikahan impian!\n" +
-                       "Ada yang bisa saya bantu hari ini?";
+                "Saya siap membantu Anda menemukan busana pernikahan impian!\n" +
+                "Ada yang bisa saya bantu hari ini?";
 
         Pesan pesanSalam = new Pesan(sesiAktif.getId(), salam, true);
         sesiAktif.getDaftarPesan().add(pesanSalam);
@@ -250,7 +264,6 @@ public class ChatController {
         tambahBubbleBot(salam, LocalDateTime.now(), null);
         tampilkanQuickReply();
     }
-
     // ═════════════════════════════════════════════════════════════════════════
     // Private — Bubble Builder
     // ═════════════════════════════════════════════════════════════════════════

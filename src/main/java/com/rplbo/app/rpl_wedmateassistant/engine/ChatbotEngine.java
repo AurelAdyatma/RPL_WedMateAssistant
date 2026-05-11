@@ -3,10 +3,12 @@ package com.rplbo.app.rpl_wedmateassistant.engine;
 import com.rplbo.app.rpl_wedmateassistant.engine.RegexMatcher.Kategori;
 import com.rplbo.app.rpl_wedmateassistant.model.EntriKnowledge;
 import com.rplbo.app.rpl_wedmateassistant.model.PakaianWedding;
+import com.rplbo.app.rpl_wedmateassistant.model.PaketSewa;
 import com.rplbo.app.rpl_wedmateassistant.model.Pesan;
 import com.rplbo.app.rpl_wedmateassistant.model.Sesi;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -45,6 +47,9 @@ public class ChatbotEngine {
 
     /** Cache data pakaian dari database. */
     private List<PakaianWedding> daftarPakaian = new ArrayList<>();
+
+    /** Cache data paket sewa dari database. */
+    private List<PaketSewa> daftarPaket = new ArrayList<>();
 
     // ── Constructor ───────────────────────────────────────────────────────────
 
@@ -97,6 +102,8 @@ public class ChatbotEngine {
             responsPakaian = generateResponsGender(kategori);
         } else if (kategori == Kategori.REKOMENDASI_UKURAN) {
             responsPakaian = generateRekomendasiUkuran(inputPengguna);
+        } else if (kategori == Kategori.HARGA_PAKET && mengandungBudget(inputPengguna)) {
+            responsPakaian = generateRekomendasiPaketBudget(inputPengguna);
         } else if (kategori != null && (kategori.name().startsWith("BUSANA_") || kategori == Kategori.LIHAT_BUSANA)) {
             if (kategori == Kategori.LIHAT_BUSANA) {
                  responsPakaian = null; // Biarkan fallback ke ResponseGenerator default
@@ -140,6 +147,15 @@ public class ChatbotEngine {
         regexMatcher.updateDynamicPatterns(this.daftarPakaian);
         System.out.println("[ChatbotEngine] Pakaian dimuat: "
                 + this.daftarPakaian.size() + " item.");
+    }
+
+    /**
+     * Menginjeksikan daftar paket sewa dari database.
+     */
+    public void setDaftarPaket(List<PaketSewa> daftarPaket) {
+        this.daftarPaket = (daftarPaket != null) ? daftarPaket : new ArrayList<>();
+        System.out.println("[ChatbotEngine] Paket sewa dimuat: "
+                + this.daftarPaket.size() + " paket.");
     }
 
     /** Mengembalikan jumlah entri knowledge base yang saat ini di-cache. */
@@ -298,6 +314,137 @@ public class ChatbotEngine {
     private int compareSize(String s1, String s2) {
         List<String> order = List.of("XS", "S", "M", "L", "XL", "XXL");
         return order.indexOf(s1) - order.indexOf(s2);
+    }
+
+    /**
+     * Mengecek apakah input pengguna memang membahas budget/dana.
+     */
+    private boolean mengandungBudget(String input) {
+        if (input == null) return false;
+
+        String normal = input.toLowerCase();
+        return normal.matches(".*\\b(budget|dana|uang|modal|maksimal|max|dibawah|di bawah|sekitar|rekomendasi|cocok)\\b.*\\d+.*")
+                || normal.matches(".*\\d+\\s*(juta|jt|ribu|rb|k).*");
+    }
+
+    /**
+     * Menghasilkan rekomendasi paket sewa berdasarkan budget yang disebutkan pengguna.
+     */
+    private String generateRekomendasiPaketBudget(String input) {
+        long budget = extractBudget(input);
+
+        if (budget <= 0) {
+            return "[ Rekomendasi Paket Berdasarkan Budget ]\n\n" +
+                    "Boleh sebutkan budget Anda terlebih dahulu?\n" +
+                    "Contoh: \"budget saya 3 juta\" atau \"paket di bawah 2500000\".";
+        }
+
+        if (daftarPaket == null || daftarPaket.isEmpty()) {
+            return "[ Rekomendasi Paket Berdasarkan Budget ]\n\n" +
+                    "Maaf, data paket sewa belum tersedia saat ini. Silakan hubungi admin untuk info paket terbaru.";
+        }
+
+        List<PaketSewa> paketSesuai = daftarPaket.stream()
+                .filter(p -> p.getHargaTotal() <= budget)
+                .sorted(Comparator.comparingDouble(PaketSewa::getHargaTotal).reversed())
+                .toList();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ Rekomendasi Paket Berdasarkan Budget ]\n\n");
+        sb.append("Budget Anda: Rp ").append(String.format("%,d", budget)).append("\n\n");
+
+        if (!paketSesuai.isEmpty()) {
+            sb.append("Berikut paket yang cocok dengan budget Anda:\n\n");
+
+            int limit = Math.min(3, paketSesuai.size());
+            for (int i = 0; i < limit; i++) {
+                PaketSewa p = paketSesuai.get(i);
+
+                sb.append(i + 1).append(". ").append(p.getNamaPaket()).append("\n");
+                sb.append("   Harga: Rp ").append(String.format("%,.0f", p.getHargaTotal())).append("\n");
+
+                if (p.getDeskripsi() != null && !p.getDeskripsi().isBlank()) {
+                    sb.append("   Detail: ").append(p.getDeskripsi()).append("\n");
+                }
+
+                sb.append("\n");
+            }
+
+            PaketSewa terbaik = paketSesuai.get(0);
+            sb.append("Rekomendasi terbaik untuk budget Anda adalah ")
+                    .append(terbaik.getNamaPaket())
+                    .append(" karena paling mendekati budget yang Anda punya.\n\n");
+
+            sb.append("Kalau tertarik, Anda bisa lanjut bertanya detail paket tersebut.");
+
+            return sb.toString();
+        }
+
+        PaketSewa paketTermurah = daftarPaket.stream()
+                .min(Comparator.comparingDouble(PaketSewa::getHargaTotal))
+                .orElse(null);
+
+        if (paketTermurah == null) {
+            return "Maaf, paket sewa belum tersedia saat ini.";
+        }
+
+        sb.append("Maaf, belum ada paket yang sesuai dengan budget tersebut.\n\n");
+        sb.append("Paket termurah saat ini:\n");
+        sb.append("• ").append(paketTermurah.getNamaPaket()).append("\n");
+        sb.append("  Harga: Rp ").append(String.format("%,.0f", paketTermurah.getHargaTotal())).append("\n");
+
+        if (paketTermurah.getDeskripsi() != null && !paketTermurah.getDeskripsi().isBlank()) {
+            sb.append("  Detail: ").append(paketTermurah.getDeskripsi()).append("\n");
+        }
+
+        double selisih = paketTermurah.getHargaTotal() - budget;
+        if (selisih > 0) {
+            sb.append("\nAnda bisa menaikkan budget sekitar Rp ")
+                    .append(String.format("%,.0f", selisih))
+                    .append(" untuk mengambil paket ini.");
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Mengekstrak nominal budget dari kalimat pengguna.
+     * Mendukung format: 3 juta, 3jt, 2500000, 500 ribu, 500rb.
+     */
+    private long extractBudget(String input) {
+        if (input == null || input.isBlank()) return 0;
+
+        String normal = input.toLowerCase()
+                .replace(",", ".")
+                .replaceAll("[^a-z0-9.\\s]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("(\\d+(?:\\.\\d+)?)\\s*(juta|jt|ribu|rb|k)?")
+                .matcher(normal);
+
+        long budgetTerbesar = 0;
+
+        while (m.find()) {
+            double angka = Double.parseDouble(m.group(1));
+            String satuan = m.group(2);
+
+            long nominal;
+            if (satuan == null) {
+                nominal = (long) angka;
+            } else if (satuan.equals("juta") || satuan.equals("jt")) {
+                nominal = (long) (angka * 1_000_000);
+            } else {
+                nominal = (long) (angka * 1_000);
+            }
+
+            if (nominal > budgetTerbesar) {
+                budgetTerbesar = nominal;
+            }
+        }
+
+        return budgetTerbesar;
     }
 
     /**
