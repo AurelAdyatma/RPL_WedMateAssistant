@@ -1,6 +1,6 @@
 package com.rplbo.app.rpl_wedmateassistant.controller;
 
-import com.rplbo.app.rpl_wedmateassistant.model.User;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -59,15 +59,9 @@ public class LoginController {
             if (username.equalsIgnoreCase("admin") && password.equals("admin")) {
                 loadView("/com/rplbo/app/rpl_wedmateassistant/view/AdminPanel.fxml", "Admin Panel");
             } else {
-                User mockUser = new User(
-                        1,
-                        username,
-                        password,
-                        "Pengguna " + username,
-                        username + "@example.com",
-                        "08123456789"
-                );
-                loadChatView(mockUser);
+                lblError.setText("Username atau Password salah!");
+                lblError.setVisible(true);
+                lblError.setManaged(true);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -85,23 +79,6 @@ public class LoginController {
         Scene scene = new Scene(root, 1280, 800);
         stage.setScene(scene);
         stage.setTitle(title);
-        stage.centerOnScreen();
-        stage.show();
-    }
-
-    private void loadChatView(User user) throws IOException {
-        Stage stage = (Stage) btnLogin.getScene().getWindow();
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/rplbo/app/rpl_wedmateassistant/view/ChatView.fxml")
-        );
-        Parent root = loader.load();
-
-        ChatController chatController = loader.getController();
-        chatController.setUserLogin(user);
-
-        Scene scene = new Scene(root, 1280, 800);
-        stage.setScene(scene);
-        stage.setTitle("WedMate Assistant");
         stage.centerOnScreen();
         stage.show();
     }
