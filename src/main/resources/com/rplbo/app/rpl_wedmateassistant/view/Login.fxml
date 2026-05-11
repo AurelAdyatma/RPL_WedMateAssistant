@@ -11,70 +11,80 @@
 <StackPane xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.LoginController"
-           style="-fx-background-color: #d9e2f2;">
+           style="-fx-background-color: #F8FAFC;">
 
     <children>
         <VBox alignment="CENTER"
-              spacing="12"
-              maxWidth="320"
-              prefWidth="320"
+              spacing="20"
+              maxWidth="400"
               style="-fx-background-color: white;
-                     -fx-border-color: black;
-                     -fx-border-width: 1;
-                     -fx-padding: 25;">
+                     -fx-background-radius: 15;
+                     -fx-padding: 40;
+                     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 5);">
 
-            <Label text="WedMate Assistant"
-                   style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+            <VBox alignment="CENTER" spacing="8">
+                <Label text="WedMate"
+                       style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #D97706;" />
+                <Label text="Admin Login"
+                       style="-fx-font-size: 14px; -fx-text-fill: #64748B;" />
+            </VBox>
 
-            <TextField fx:id="txtUsername"
-                       promptText="Username"
-                       prefWidth="250"
-                       maxWidth="250"
-                       style="-fx-pref-height: 35;
-                              -fx-background-color: white;
-                              -fx-border-color: black;
-                              -fx-border-width: 1;" />
+            <VBox spacing="15" style="-fx-padding: 10 0 0 0;">
+                <VBox spacing="5">
+                    <Label text="Username" style="-fx-font-size: 13px; -fx-text-fill: #1E293B; -fx-font-weight: bold;"/>
+                    <TextField fx:id="txtUsername"
+                               promptText="Masukkan username"
+                               prefHeight="45"
+                               style="-fx-background-color: #F1F5F9;
+                                      -fx-background-radius: 8;
+                                      -fx-padding: 0 15;
+                                      -fx-border-color: #E2E8F0;
+                                      -fx-border-radius: 8;" />
+                </VBox>
 
-            <PasswordField fx:id="txtPassword"
-                           promptText="Password"
-                           prefWidth="250"
-                           maxWidth="250"
-                           style="-fx-pref-height: 35;
-                                  -fx-background-color: white;
-                                  -fx-border-color: black;
-                                  -fx-border-width: 1;" />
+                <VBox spacing="5">
+                    <Label text="Password" style="-fx-font-size: 13px; -fx-text-fill: #1E293B; -fx-font-weight: bold;"/>
+                    <PasswordField fx:id="txtPassword"
+                                   promptText="Masukkan password"
+                                   prefHeight="45"
+                                   style="-fx-background-color: #F1F5F9;
+                                          -fx-background-radius: 8;
+                                          -fx-padding: 0 15;
+                                          -fx-border-color: #E2E8F0;
+                                          -fx-border-radius: 8;" />
+                </VBox>
+            </VBox>
 
             <Label fx:id="lblError"
                    text=""
                    visible="false"
                    managed="false"
                    wrapText="true"
-                   style="-fx-text-fill: red; -fx-font-size: 12px;" />
+                   style="-fx-text-fill: #DC2626; -fx-font-size: 12px;" />
 
-            <HBox spacing="10" alignment="CENTER">
-                <Button fx:id="btnKembali"
-                        text="Kembali"
-                        onAction="#handleKembali"
-                        prefWidth="110"
-                        style="-fx-pref-height: 35;
-                               -fx-background-color: #E2E8F0;
-                               -fx-text-fill: black;
-                               -fx-font-weight: bold;
-                               -fx-border-color: black;
-                               -fx-border-width: 1;
-                               -fx-cursor: hand;" />
+            <VBox spacing="10" style="-fx-padding: 10 0 0 0;">
                 <Button fx:id="btnLogin"
                         text="Masuk"
                         onAction="#handleLogin"
-                        prefWidth="110"
-                        style="-fx-pref-height: 35;
-                               -fx-background-color: white;
-                               -fx-text-fill: black;
+                        maxWidth="Infinity"
+                        prefHeight="45"
+                        style="-fx-background-color: #1E293B;
+                               -fx-text-fill: white;
                                -fx-font-weight: bold;
-                               -fx-border-color: black;
-                               -fx-border-width: 1;
+                               -fx-background-radius: 8;
                                -fx-cursor: hand;" />
-            </HBox>
+                
+                <Button fx:id="btnKembali"
+                        text="Kembali ke Menu Utama"
+                        onAction="#handleKembali"
+                        maxWidth="Infinity"
+                        prefHeight="45"
+                        style="-fx-background-color: transparent;
+                               -fx-text-fill: #64748B;
+                               -fx-font-weight: bold;
+                               -fx-background-radius: 8;
+                               -fx-cursor: hand;" />
+            </VBox>
         </VBox>
     </children>
 </StackPane>

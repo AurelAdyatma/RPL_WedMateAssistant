@@ -20,7 +20,7 @@ public class HelloApplication extends Application {
                 HelloApplication.class.getResource("/com/rplbo/app/rpl_wedmateassistant/view/Welcome.fxml")
         );
 
-        Scene scene = new Scene(fxmlLoader.load(), 900, 600);
+        Scene scene = new Scene(fxmlLoader.load(), 1280, 800);
         stage.setTitle("Welcome to WedMate");
         stage.setScene(scene);
         stage.centerOnScreen();

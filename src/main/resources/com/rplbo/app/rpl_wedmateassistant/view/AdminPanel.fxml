@@ -73,7 +73,7 @@
                        style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <TextField fx:id="txtCari"
-                           promptText="Cari data..."
+                           promptText="Cari data"
                            prefWidth="200"
                            style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 12; -fx-font-size: 13px;"/>
                 <Button fx:id="btnTambah" text="+ Tambah" onAction="#handleTambah"

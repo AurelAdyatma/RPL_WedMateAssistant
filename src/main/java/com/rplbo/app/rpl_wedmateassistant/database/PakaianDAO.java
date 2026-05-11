@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * Data Access Object untuk tabel pakaian_wedding di SQLite.
  * Menyediakan operasi CRUD untuk PakaianWedding.
+ * Foto disimpan sebagai BLOB (byte[]) di kolom foto_data.
  */
 public class PakaianDAO {
 
@@ -73,7 +74,7 @@ public class PakaianDAO {
     }
 
     public boolean save(PakaianWedding pakaian) {
-        String sql = "INSERT INTO pakaian_wedding (nama, jenis, ukuran, harga_sewa, gender, tersedia, deskripsi, foto_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pakaian_wedding (nama, jenis, ukuran, harga_sewa, gender, tersedia, deskripsi, foto_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, pakaian.getNama());
@@ -83,7 +84,7 @@ public class PakaianDAO {
             stmt.setString(5, pakaian.getGender() != null ? pakaian.getGender() : "Unisex");
             stmt.setInt(6, pakaian.isTersedia() ? 1 : 0);
             stmt.setString(7, pakaian.getDeskripsi());
-            stmt.setString(8, pakaian.getImagePath());
+            stmt.setBytes(8, pakaian.getImageData());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -92,7 +93,7 @@ public class PakaianDAO {
     }
 
     public boolean update(PakaianWedding pakaian) {
-        String sql = "UPDATE pakaian_wedding SET nama = ?, jenis = ?, ukuran = ?, harga_sewa = ?, gender = ?, tersedia = ?, deskripsi = ?, foto_path = ? WHERE id = ?";
+        String sql = "UPDATE pakaian_wedding SET nama = ?, jenis = ?, ukuran = ?, harga_sewa = ?, gender = ?, tersedia = ?, deskripsi = ?, foto_data = ? WHERE id = ?";
         try (Connection conn = dbManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, pakaian.getNama());
@@ -102,7 +103,7 @@ public class PakaianDAO {
             stmt.setString(5, pakaian.getGender() != null ? pakaian.getGender() : "Unisex");
             stmt.setInt(6, pakaian.isTersedia() ? 1 : 0);
             stmt.setString(7, pakaian.getDeskripsi());
-            stmt.setString(8, pakaian.getImagePath());
+            stmt.setBytes(8, pakaian.getImageData());
             stmt.setInt(9, pakaian.getId());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -161,9 +162,9 @@ public class PakaianDAO {
             p.setDeskripsi("");
         }
         try {
-            p.setImagePath(rs.getString("foto_path"));
+            p.setImageData(rs.getBytes("foto_data"));
         } catch (SQLException e) {
-            p.setImagePath(null);
+            p.setImageData(null);
         }
         p.setTersedia(rs.getInt("tersedia") == 1);
         return p;

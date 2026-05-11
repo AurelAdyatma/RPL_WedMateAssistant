@@ -122,7 +122,7 @@ public class ChatController {
             Stage stage = (Stage) btnKirim.getScene().getWindow();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/rplbo/app/rpl_wedmateassistant/view/Welcome.fxml"));
             javafx.scene.Parent root = loader.load();
-            javafx.scene.Scene scene = new javafx.scene.Scene(root, 900, 600);
+            javafx.scene.Scene scene = new javafx.scene.Scene(root, 1280, 800);
             stage.setScene(scene);
             stage.setTitle("Welcome to WedMate");
             stage.centerOnScreen();
@@ -234,7 +234,7 @@ public class ChatController {
 
         // Tampilkan bubble bot
         if (pesanBot != null && pesanBot.getIsiPesan() != null) {
-            tambahBubbleBot(pesanBot.getIsiPesan(), pesanBot.getWaktuKirim(), pesanBot.getImagePaths());
+            tambahBubbleBot(pesanBot.getIsiPesan(), pesanBot.getWaktuKirim(), pesanBot.getImageDataList());
         }
     }
 
@@ -287,7 +287,7 @@ public class ChatController {
      * Membuat dan menambahkan bubble pesan BOT ke chatBox.
      * Rata kiri, warna abu gelap (#2C2C4A), dengan avatar kecil.
      */
-    private void tambahBubbleBot(String teks, LocalDateTime waktu, List<String> images) {
+    private void tambahBubbleBot(String teks, LocalDateTime waktu, List<byte[]> images) {
         // Avatar inisial bot
         StackPane avatar = new StackPane(new Label("W"));
         avatar.setStyle("-fx-background-color: #D97706; -fx-background-radius: 18; -fx-min-width: 36; -fx-min-height: 36;");
@@ -311,10 +311,11 @@ public class ChatController {
             imagePane.setVgap(8);
             imagePane.setMaxWidth(420);
             
-            for (String imgPath : images) {
+            for (byte[] imgData : images) {
                 try {
-                    // Coba muat gambar dari URL/path file dengan resolusi lebih tinggi
-                    javafx.scene.image.Image img = new javafx.scene.image.Image(imgPath, 280, 400, true, true, true);
+                    // Muat gambar dari byte[] BLOB data menggunakan ByteArrayInputStream
+                    java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(imgData);
+                    javafx.scene.image.Image img = new javafx.scene.image.Image(bais, 280, 400, true, true);
                     javafx.scene.image.ImageView imgView = new javafx.scene.image.ImageView(img);
                     imgView.setFitWidth(280);
                     imgView.setFitHeight(400);
@@ -328,7 +329,7 @@ public class ChatController {
                     
                     imagePane.getChildren().add(imgView);
                 } catch (Exception e) {
-                    System.err.println("Gagal memuat gambar dari path: " + imgPath);
+                    System.err.println("Gagal memuat gambar dari BLOB data");
                 }
             }
             if (!imagePane.getChildren().isEmpty()) {

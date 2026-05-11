@@ -87,7 +87,7 @@ public class ChatbotEngine {
 
         // ── 4. Coba generate respons dari pakaian DB jika kategori busana atau gender
         String responsPakaian = null;
-        List<String> attachedImages = new ArrayList<>();
+        List<byte[]> attachedImages = new ArrayList<>();
         
         boolean isDetailRequest = inputPengguna.toLowerCase().matches(".*\\b(detail|contoh|foto|gambar|spesifikasi|wujud|tampil|penampakan)\\b.*");
 
@@ -118,7 +118,7 @@ public class ChatbotEngine {
                 entriDB != null ? "id=" + entriDB.getId() : "null");
 
         Pesan pesanBot = buatPesanBot(teksRespons, sesi);
-        pesanBot.setImagePaths(attachedImages);
+        pesanBot.setImageDataList(attachedImages);
         return pesanBot;
     }
 
@@ -366,7 +366,7 @@ public class ChatbotEngine {
         };
     }
 
-    private String generateDetailPakaian(String input, Kategori kategori, List<String> imagePaths) {
+    private String generateDetailPakaian(String input, Kategori kategori, List<byte[]> imageDataList) {
         List<PakaianWedding> cocok = new ArrayList<>();
         
         if (kategori != null && kategori.name().startsWith("BUSANA_")) {
@@ -405,8 +405,8 @@ public class ChatbotEngine {
             }
             sb.append("  Harga    : Rp ").append(String.format("%,d", (long) p.getHargaSewa())).append("/hari\n\n");
             
-            if (p.getImagePath() != null && !p.getImagePath().isEmpty()) {
-                imagePaths.add(p.getImagePath());
+            if (p.hasImage()) {
+                imageDataList.add(p.getImageData());
             }
         }
         

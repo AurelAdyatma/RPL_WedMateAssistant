@@ -107,7 +107,7 @@
                 <HBox spacing="15"
                       alignment="CENTER">
                     <TextField fx:id="txtInput"
-                               promptText="Ketik pesan Anda di sini..."
+                               promptText="Ketik pesan Anda di sini"
                                style="-fx-background-color: #F1F5F9; -fx-background-radius: 25; -fx-padding: 12 20; -fx-font-size: 14px;"
                                onAction="#handleKirimPesan"
                                HBox.hgrow="ALWAYS"/>

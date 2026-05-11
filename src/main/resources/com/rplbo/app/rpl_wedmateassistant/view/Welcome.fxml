@@ -12,7 +12,7 @@
     <!-- Header -->
     <VBox alignment="CENTER" spacing="8">
         <Label text="Welcome to WedMate" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111820;"/>
-        <Label text="Your Assistent for Weeding Dress" style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
+        <Label text="Your Assistant for Wedding Dress" style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
     </VBox>
 
     <!-- Cards -->
