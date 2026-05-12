@@ -165,8 +165,7 @@ public class ChatController {
         tambahBubbleUser(teks, LocalDateTime.now());
         txtInput.clear();
 
-        // 2. Sembunyikan quick reply setelah interaksi pertama
-        sembunyikanQuickReply();
+        // 2. Quick reply dipertahankan agar selalu tampil
 
         // 3. Tampilkan indikator mengetik bot
         Label typingLabel = buatTypingLabel();
@@ -378,8 +377,7 @@ public class ChatController {
     // ═════════════════════════════════════════════════════════════════════════
 
     /**
-     * Menampilkan 4 tombol quick reply di bawah pesan bot pertama.
-     * Hanya muncul sekali per sesi.
+     * Menampilkan 4 tombol quick reply yang selalu tersedia di bawah chat.
      */
     private void tampilkanQuickReply() {
         if (quickReplyShown) return;
@@ -393,18 +391,11 @@ public class ChatController {
             btn.setOnAction(e -> {
                 txtInput.setText(label);
                 handleKirimPesan();
-                sembunyikanQuickReply();
             });
             quickReplyBox.getChildren().add(btn);
         }
 
         quickReplyBox.setVisible(true);
         quickReplyBox.setManaged(true);
-    }
-
-    /** Menyembunyikan quick reply box setelah pengguna berinteraksi. */
-    private void sembunyikanQuickReply() {
-        quickReplyBox.setVisible(false);
-        quickReplyBox.setManaged(false);
     }
 }

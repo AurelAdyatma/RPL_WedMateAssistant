@@ -231,25 +231,26 @@ public class ChatbotEngine {
     private String generateRekomendasiUkuran(String input) {
         String normal = input.toLowerCase().replaceAll("[^0-9a-z\\s]", "");
 
-        // Cari angka tinggi badan (biasanya diikuti cm atau diawali "tinggi")
-        Integer tinggi = extractNumber(normal, "tinggi", "cm");
-        // Cari angka berat badan (biasanya diikuti kg atau diawali "berat")
-        Integer berat = extractNumber(normal, "berat", "kg");
+        // Cari angka tinggi badan (biasanya diikuti cm atau diawali "tinggi" atau "tb")
+        Integer tinggi = extractNumber(normal, "tinggi|tb", "cm");
+        // Cari angka berat badan (biasanya diikuti kg atau diawali "berat" atau "bb")
+        Integer berat = extractNumber(normal, "berat|bb", "kg");
 
-        if (tinggi == null && berat == null) {
-            // Coba cari angka saja jika tidak ada kata kunci pendukung
+        // Coba cari angka saja untuk mengisi yang masih kosong (contoh: "170 60")
+        if (tinggi == null || berat == null) {
             java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\d+").matcher(normal);
-            if (m.find()) {
+            while (m.find()) {
                 int val = Integer.parseInt(m.group());
-                if (val > 100)
+                if (val > 100 && tinggi == null) {
                     tinggi = val; // Asumsi angka di atas 100 adalah tinggi
-                else
-                    berat = val; // Asumsi angka di bawah 100 adalah berat
+                } else if (val <= 100 && berat == null) {
+                    berat = val; // Asumsi angka 100 ke bawah adalah berat
+                }
             }
         }
 
         if (tinggi == null && berat == null) {
-            return "Mohon maaf, saya belum bisa menentukan ukuran Anda. Bisa informasikan tinggi badan (cm) atau berat badan (kg) Anda?";
+            return "Mohon maaf, saya belum bisa menentukan ukuran Anda. Bisa informasikan tinggi badan (cm) dan berat badan (kg) Anda?";
         }
 
         String sizeTinggi = null;
@@ -302,7 +303,7 @@ public class ChatbotEngine {
 
     private Integer extractNumber(String input, String keyword, String unit) {
         // Pola: "tinggi 170" atau "170cm" atau "170 cm"
-        String regex = "(?:" + keyword + "\\s*(\\d+))|(\\d+)\\s*" + unit;
+        String regex = "(?:(?:" + keyword + ")\\s*(\\d+))|(\\d+)\\s*(?:" + unit + ")";
         java.util.regex.Matcher m = java.util.regex.Pattern.compile(regex).matcher(input);
         if (m.find()) {
             String val = m.group(1) != null ? m.group(1) : m.group(2);
