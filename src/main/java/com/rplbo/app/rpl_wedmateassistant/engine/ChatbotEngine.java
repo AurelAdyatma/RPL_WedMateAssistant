@@ -515,23 +515,55 @@ public class ChatbotEngine {
 
     private String generateDetailPakaian(String input, Kategori kategori, List<byte[]> imageDataList) {
         List<PakaianWedding> cocok = new ArrayList<>();
-        
-        if (kategori != null && kategori.name().startsWith("BUSANA_")) {
+
+        // ── PRIORITAS 1: Cari berdasarkan nama spesifik dari input pengguna ──
+        // Ekstrak keyword dari input (hapus kata-kata umum/command)
+        String normal = input.toLowerCase().replaceAll("[^a-z0-9\\s]", " ");
+        String keyword = normal.replaceAll("\\b(detail|contoh|foto|gambar|spesifikasi|wujud|tampil|penampakan|busana|gaun|baju|pakaian|yang|dan|atau|untuk|dari|di|ke|ini|itu|nya|saya|mau|lihat|tolong|cari|tampilkan|tunjukkan|show)\\b", "").trim();
+        // Kompres spasi ganda
+        keyword = keyword.replaceAll("\\s+", " ").trim();
+
+        if (!keyword.isEmpty()) {
+            final String searchKeyword = keyword;
+
+            // 1a. Coba cocokkan seluruh keyword dengan nama pakaian (match paling spesifik)
+            cocok = daftarPakaian.stream()
+                    .filter(p -> p.getNama().toLowerCase().contains(searchKeyword))
+                    .toList();
+
+            // 1b. Jika tidak ada, coba cocokkan tiap kata dalam keyword
+            if (cocok.isEmpty()) {
+                String[] words = searchKeyword.split("\\s+");
+                cocok = daftarPakaian.stream()
+                        .filter(p -> {
+                            String namaLower = p.getNama().toLowerCase();
+                            for (String w : words) {
+                                if (w.length() >= 3 && namaLower.contains(w)) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        })
+                        .toList();
+            }
+
+            // 1c. Jika masih tidak ada, coba cocokkan keyword dengan kategori
+            if (cocok.isEmpty()) {
+                cocok = daftarPakaian.stream()
+                        .filter(p -> p.getKategori().toLowerCase().contains(searchKeyword))
+                        .toList();
+            }
+        }
+
+        // ── PRIORITAS 2: Fallback ke kategori jika tidak ada match nama ──────
+        if (cocok.isEmpty() && kategori != null && kategori.name().startsWith("BUSANA_")) {
             String dbKategori = getDbKategori(kategori);
             if (dbKategori != null) {
                 cocok = daftarPakaian.stream().filter(p -> p.getKategori().equalsIgnoreCase(dbKategori)).toList();
             } else if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
                 String genderTarget = kategori == Kategori.BUSANA_PRIA ? "Pria" : "Wanita";
-                cocok = daftarPakaian.stream().filter(p -> p.getGender() != null && 
+                cocok = daftarPakaian.stream().filter(p -> p.getGender() != null &&
                         (p.getGender().equalsIgnoreCase(genderTarget) || p.getGender().equalsIgnoreCase("Unisex"))).toList();
-            }
-        }
-        
-        if (cocok.isEmpty()) {
-            String normal = input.toLowerCase().replaceAll("[^a-z0-9\\s]", " ");
-            String keyword = normal.replaceAll("\\b(detail|contoh|foto|gambar|spesifikasi|wujud|tampil|penampakan|busana|gaun|baju|pakaian)\\b", "").trim();
-            if (!keyword.isEmpty()) {
-                cocok = daftarPakaian.stream().filter(p -> p.getNama().toLowerCase().contains(keyword) || p.getKategori().toLowerCase().contains(keyword)).toList();
             }
         }
 
@@ -550,13 +582,18 @@ public class ChatbotEngine {
             if (p.getDeskripsi() != null && !p.getDeskripsi().isEmpty()) {
                 sb.append("  Detail   : ").append(p.getDeskripsi()).append("\n");
             }
-            sb.append("  Harga    : Rp ").append(String.format("%,d", (long) p.getHargaSewa())).append("/hari\n\n");
-            
+            sb.append("  Ukuran   : ").append(p.getUkuranTersedia()).append("\n");
+            sb.append("  Harga    : Rp ").append(String.format("%,d", (long) p.getHargaSewa())).append("/hari");
+            if (!p.isTersedia()) {
+                sb.append(" (SEDANG DISEWA)");
+            }
+            sb.append("\n\n");
+
             if (p.hasImage()) {
                 imageDataList.add(p.getImageData());
             }
         }
-        
+
         if (cocok.size() > maxItems) {
             sb.append("... dan ").append(cocok.size() - maxItems).append(" busana lainnya. Ketik nama busana yang lebih spesifik untuk melihat detail lainnya.");
         }
