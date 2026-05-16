@@ -95,11 +95,19 @@ public class ChatbotEngine {
         List<byte[]> attachedImages = new ArrayList<>();
 
         String warnaDicari = ekstrakWarna(inputPengguna);
+        String ukuranDicari = ekstrakUkuran(inputPengguna);
+        String jenisDicari = ekstrakJenisBusana(inputPengguna);
+        long budgetBusana = extractBudget(inputPengguna);
+
+        boolean isPencarianBusana = warnaDicari != null
+                || ukuranDicari != null
+                || jenisDicari != null
+                || mengandungFilterHargaBusana(inputPengguna);
 
         boolean isDetailRequest = inputPengguna.toLowerCase().matches(".*\\b(detail|contoh|foto|gambar|spesifikasi|wujud|tampil|penampakan)\\b.*");
 
-        if (warnaDicari != null) {
-            responsPakaian = generateResponsWarna(inputPengguna, warnaDicari);
+        if (isPencarianBusana) {
+            responsPakaian = generateResponsPencarianKombinasi(inputPengguna, warnaDicari, ukuranDicari, jenisDicari, budgetBusana);
         } else if (isDetailRequest) {
             responsPakaian = generateDetailPakaian(inputPengguna, kategori, attachedImages);
         } else if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
@@ -561,6 +569,140 @@ public class ChatbotEngine {
 
         sb.append("Ketik 'detail [nama busana]' untuk melihat detail dan foto busana.");
         return sb.toString();
+    }
+
+private String generateResponsPencarianKombinasi(String input, String warna, String ukuran, String jenis, long budget) {
+    List<PakaianWedding> cocok = daftarPakaian.stream()
+            .filter(p -> warna == null || cocokDenganWarna(p, warna))
+            .filter(p -> ukuran == null || cocokDenganUkuran(p, ukuran))
+            .filter(p -> jenis == null || cocokDenganJenis(p, jenis))
+            .filter(p -> budget <= 0 || p.getHargaSewa() <= budget)
+            .toList();
+
+    if (cocok.isEmpty()) {
+        StringBuilder kosong = new StringBuilder();
+        kosong.append("[ Rekomendasi Busana Sesuai Pencarian ]\n\n");
+        kosong.append("Maaf, belum ada busana yang cocok dengan kriteria berikut:\n");
+
+        if (jenis != null) kosong.append("- Jenis: ").append(kapitalisasi(jenis)).append("\n");
+        if (warna != null) kosong.append("- Warna: ").append(kapitalisasi(warna)).append("\n");
+        if (ukuran != null) kosong.append("- Ukuran: ").append(ukuran).append("\n");
+        if (budget > 0) kosong.append("- Harga maksimal: Rp ").append(String.format("%,d", budget)).append("\n");
+
+        kosong.append("\nCoba longgarkan pencarian, misalnya tanpa ukuran atau naikkan budget.");
+        return kosong.toString();
+    }
+
+    StringBuilder sb = new StringBuilder();
+    sb.append("[ Rekomendasi Busana Sesuai Pencarian ]\n\n");
+    sb.append("Kriteria yang saya tangkap:\n");
+
+    if (jenis != null) sb.append("- Jenis: ").append(kapitalisasi(jenis)).append("\n");
+    if (warna != null) sb.append("- Warna: ").append(kapitalisasi(warna)).append("\n");
+    if (ukuran != null) sb.append("- Ukuran: ").append(ukuran).append("\n");
+    if (budget > 0) sb.append("- Harga maksimal: Rp ").append(String.format("%,d", budget)).append("\n");
+
+    sb.append("\nBerikut busana yang cocok:\n\n");
+
+    for (PakaianWedding p : cocok) {
+        sb.append("• ").append(p.getNama()).append(" (").append(p.getKategori()).append(")\n");
+        sb.append("  Ukuran : ").append(p.getUkuranTersedia()).append("\n");
+        sb.append("  Harga  : Rp ").append(String.format("%,d", (long) p.getHargaSewa())).append("/hari\n");
+
+        if (!p.isTersedia()) {
+            sb.append("  Status : SEDANG DISEWA\n");
+        }
+
+        sb.append("\n");
+    }
+
+    sb.append("Ketik 'detail [nama busana]' untuk melihat detail dan foto busana.");
+    return sb.toString();
+}
+
+    private String ekstrakUkuran(String input) {
+        if (input == null || input.isBlank()) {
+            return null;
+        }
+
+        String normal = input.toLowerCase()
+                .replaceAll("[^a-z0-9\\s]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+
+        java.util.regex.Matcher matcher = java.util.regex.Pattern
+                .compile("\\b(xs|s|m|l|xl|xxl)\\b", java.util.regex.Pattern.CASE_INSENSITIVE)
+                .matcher(normal);
+
+        if (matcher.find()) {
+            return matcher.group(1).toUpperCase();
+        }
+
+        return null;
+    }
+
+    private String ekstrakJenisBusana(String input) {
+        if (input == null || input.isBlank()) {
+            return null;
+        }
+
+        String normal = input.toLowerCase();
+
+        List<String> daftarJenis = List.of(
+                "gaun", "kebaya", "jas", "tuxedo", "beskap", "batik",
+                "kimono", "hanbok", "cheongsam", "koko", "blazer", "baju", "busana", "pakaian"
+        );
+
+        for (String jenis : daftarJenis) {
+            if (normal.matches(".*\\b" + java.util.regex.Pattern.quote(jenis) + "\\b.*")) {
+                return jenis;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean mengandungFilterHargaBusana(String input) {
+        if (input == null || input.isBlank()) {
+            return false;
+        }
+
+        String normal = input.toLowerCase();
+
+        boolean adaKataHarga = normal.matches(".*\\b(harga|budget|maksimal|max|dibawah|di bawah|kurang dari|under)\\b.*");
+        boolean adaNominal = extractBudget(input) > 0;
+        boolean konteksBusana = normal.matches(".*\\b(busana|pakaian|baju|gaun|kebaya|jas|tuxedo|beskap|batik|kimono|hanbok|cheongsam|koko|blazer)\\b.*");
+
+        return adaKataHarga && adaNominal && konteksBusana;
+    }
+
+    private boolean cocokDenganUkuran(PakaianWedding pakaian, String ukuran) {
+        if (pakaian.getUkuranTersedia() == null || ukuran == null) {
+            return false;
+        }
+
+        String ukuranTersedia = pakaian.getUkuranTersedia().toUpperCase();
+
+        return ukuranTersedia.matches(".*\\b" + java.util.regex.Pattern.quote(ukuran.toUpperCase()) + "\\b.*")
+                || ukuranTersedia.contains(ukuran.toUpperCase());
+    }
+
+    private boolean cocokDenganJenis(PakaianWedding pakaian, String jenis) {
+        if (jenis == null) {
+            return true;
+        }
+
+        String teksPakaian = (
+                nullToEmpty(pakaian.getNama()) + " " +
+                        nullToEmpty(pakaian.getKategori()) + " " +
+                        nullToEmpty(pakaian.getDeskripsi())
+        ).toLowerCase();
+
+        if (jenis.equals("baju") || jenis.equals("busana") || jenis.equals("pakaian")) {
+            return true;
+        }
+
+        return teksPakaian.contains(jenis.toLowerCase());
     }
 
     private boolean cocokDenganWarna(PakaianWedding pakaian, String warna) {
