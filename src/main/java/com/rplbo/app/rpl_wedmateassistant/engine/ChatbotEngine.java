@@ -93,10 +93,14 @@ public class ChatbotEngine {
         // ── 4. Coba generate respons dari pakaian DB jika kategori busana atau gender
         String responsPakaian = null;
         List<byte[]> attachedImages = new ArrayList<>();
-        
+
+        String warnaDicari = ekstrakWarna(inputPengguna);
+
         boolean isDetailRequest = inputPengguna.toLowerCase().matches(".*\\b(detail|contoh|foto|gambar|spesifikasi|wujud|tampil|penampakan)\\b.*");
 
-        if (isDetailRequest) {
+        if (warnaDicari != null) {
+            responsPakaian = generateResponsWarna(inputPengguna, warnaDicari);
+        } else if (isDetailRequest) {
             responsPakaian = generateDetailPakaian(inputPengguna, kategori, attachedImages);
         } else if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
             responsPakaian = generateResponsGender(kategori);
@@ -106,9 +110,9 @@ public class ChatbotEngine {
             responsPakaian = generateRekomendasiPaketBudget(inputPengguna);
         } else if (kategori != null && (kategori.name().startsWith("BUSANA_") || kategori == Kategori.LIHAT_BUSANA)) {
             if (kategori == Kategori.LIHAT_BUSANA) {
-                 responsPakaian = null; // Biarkan fallback ke ResponseGenerator default
+                responsPakaian = null; // Biarkan fallback ke ResponseGenerator default
             } else {
-                 responsPakaian = generateResponsPakaian(inputPengguna, kategori);
+                responsPakaian = generateResponsPakaian(inputPengguna, kategori);
             }
         }
 
@@ -497,6 +501,113 @@ public class ChatbotEngine {
 
         sb.append("Ketik 'detail [nama busana/kategori]' untuk melihat detail dan foto busana.");
         return sb.toString();
+    }
+
+    private String ekstrakWarna(String input) {
+        if (input == null || input.isBlank()) {
+            return null;
+        }
+
+        String normal = input.toLowerCase()
+                .replaceAll("[^a-z\\s]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+
+        List<String> daftarWarna = List.of(
+                "putih", "hitam", "merah", "marun", "biru", "navy", "hijau",
+                "toska", "emas", "gold", "champagne", "ivory", "cream", "krem",
+                "pink", "blush", "coklat", "abu", "silver", "ungu",
+                "kuning", "orange"
+        );
+
+        for (String warna : daftarWarna) {
+            if (normal.matches(".*\\b" + java.util.regex.Pattern.quote(warna) + "\\b.*")) {
+                return warna;
+            }
+        }
+
+        return null;
+    }
+
+    private String generateResponsWarna(String input, String warna) {
+        String normalInput = input == null ? "" : input.toLowerCase();
+
+        List<PakaianWedding> cocok = daftarPakaian.stream()
+                .filter(p -> cocokDenganWarna(p, warna))
+                .filter(p -> cocokDenganJenisInput(p, normalInput))
+                .toList();
+
+        if (cocok.isEmpty()) {
+            return "[ Koleksi Busana Warna " + kapitalisasi(warna) + " ]\n\n" +
+                    "Maaf, saat ini belum ada busana dengan warna " + warna + " yang sesuai dengan pencarian Anda.\n" +
+                    "Coba gunakan warna lain, misalnya putih, hitam, merah, biru, gold, atau champagne.";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ Koleksi Busana Warna ").append(kapitalisasi(warna)).append(" ]\n\n");
+        sb.append("Berikut busana warna ").append(warna).append(" yang tersedia:\n\n");
+
+        for (PakaianWedding p : cocok) {
+            sb.append("• ").append(p.getNama()).append(" (").append(p.getKategori()).append(")\n");
+            sb.append("  Ukuran : ").append(p.getUkuranTersedia()).append("\n");
+            sb.append("  Harga  : Rp ").append(String.format("%,d", (long) p.getHargaSewa())).append("/hari\n");
+
+            if (!p.isTersedia()) {
+                sb.append("  Status : SEDANG DISEWA\n");
+            }
+
+            sb.append("\n");
+        }
+
+        sb.append("Ketik 'detail [nama busana]' untuk melihat detail dan foto busana.");
+        return sb.toString();
+    }
+
+    private boolean cocokDenganWarna(PakaianWedding pakaian, String warna) {
+        String teksPakaian = (
+                nullToEmpty(pakaian.getNama()) + " " +
+                        nullToEmpty(pakaian.getKategori()) + " " +
+                        nullToEmpty(pakaian.getDeskripsi())
+        ).toLowerCase();
+
+        return teksPakaian.contains(warna.toLowerCase());
+    }
+
+    private boolean cocokDenganJenisInput(PakaianWedding pakaian, String input) {
+        if (!input.matches(".*\\b(gaun|kebaya|jas|tuxedo|beskap|batik|kimono|hanbok|cheongsam|koko|blazer)\\b.*")) {
+            return true;
+        }
+
+        String nama = nullToEmpty(pakaian.getNama()).toLowerCase();
+        String kategori = nullToEmpty(pakaian.getKategori()).toLowerCase();
+        String deskripsi = nullToEmpty(pakaian.getDeskripsi()).toLowerCase();
+        String teksPakaian = nama + " " + kategori + " " + deskripsi;
+
+        if (input.contains("gaun")) return teksPakaian.contains("gaun");
+        if (input.contains("kebaya")) return teksPakaian.contains("kebaya");
+        if (input.contains("jas")) return teksPakaian.contains("jas");
+        if (input.contains("tuxedo")) return teksPakaian.contains("tuxedo");
+        if (input.contains("beskap")) return teksPakaian.contains("beskap");
+        if (input.contains("batik")) return teksPakaian.contains("batik");
+        if (input.contains("kimono")) return teksPakaian.contains("kimono");
+        if (input.contains("hanbok")) return teksPakaian.contains("hanbok");
+        if (input.contains("cheongsam")) return teksPakaian.contains("cheongsam");
+        if (input.contains("koko")) return teksPakaian.contains("koko");
+        if (input.contains("blazer")) return teksPakaian.contains("blazer");
+
+        return true;
+    }
+
+    private String nullToEmpty(String value) {
+        return value == null ? "" : value;
+    }
+
+    private String kapitalisasi(String value) {
+        if (value == null || value.isBlank()) {
+            return "";
+        }
+
+        return value.substring(0, 1).toUpperCase() + value.substring(1).toLowerCase();
     }
 
     private String getDbKategori(Kategori kategori) {
