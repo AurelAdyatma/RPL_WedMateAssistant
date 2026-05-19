@@ -106,10 +106,10 @@ public class ChatbotEngine {
 
         boolean isDetailRequest = inputPengguna.toLowerCase().matches(".*\\b(detail|contoh|foto|gambar|spesifikasi|wujud|tampil|penampakan)\\b.*");
 
-        if (isPencarianBusana) {
-            responsPakaian = generateResponsPencarianKombinasi(inputPengguna, warnaDicari, ukuranDicari, jenisDicari, budgetBusana);
-        } else if (isDetailRequest) {
+        if (isDetailRequest) {
             responsPakaian = generateDetailPakaian(inputPengguna, kategori, attachedImages);
+        } else if (isPencarianBusana) {
+            responsPakaian = generateResponsPencarianKombinasi(inputPengguna, warnaDicari, ukuranDicari, jenisDicari, budgetBusana);
         } else if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
             responsPakaian = generateResponsGender(kategori);
         } else if (kategori == Kategori.REKOMENDASI_UKURAN) {
@@ -237,8 +237,16 @@ public class ChatbotEngine {
         return sb.toString();
     }
 
+    // ── Konstanta validasi tinggi & berat badan realistis ───────────────────
+    private static final int TINGGI_MIN = 100; // cm
+    private static final int TINGGI_MAX = 200; // cm
+    private static final int BERAT_MIN  = 20;  // kg
+    private static final int BERAT_MAX  = 200; // kg
+
     /**
      * Mengekstrak angka tinggi/berat dari input dan memberikan rekomendasi ukuran.
+     * Dilengkapi validasi rentang realistis agar tidak menghasilkan rekomendasi
+     * untuk kombinasi yang mustahil (misalnya tinggi 300 cm, berat 600 kg).
      */
     private String generateRekomendasiUkuran(String input) {
         String normal = input.toLowerCase().replaceAll("[^0-9a-z\\s]", "");
@@ -251,66 +259,157 @@ public class ChatbotEngine {
         // Coba cari angka saja untuk mengisi yang masih kosong (contoh: "170 60")
         if (tinggi == null || berat == null) {
             java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\d+").matcher(normal);
+            java.util.List<Integer> angkaList = new java.util.ArrayList<>();
             while (m.find()) {
                 int val = Integer.parseInt(m.group());
-                if (val > 100 && tinggi == null) {
-                    tinggi = val; // Asumsi angka di atas 100 adalah tinggi
-                } else if (val <= 100 && berat == null) {
-                    berat = val; // Asumsi angka 100 ke bawah adalah berat
+                angkaList.add(val);
+            }
+
+            for (int val : angkaList) {
+                // Angka dalam rentang tinggi badan realistis dan belum terisi
+                if (tinggi == null && val >= TINGGI_MIN && val <= TINGGI_MAX) {
+                    tinggi = val;
+                }
+                // Angka dalam rentang berat badan realistis dan belum terisi
+                else if (berat == null && val >= BERAT_MIN && val <= BERAT_MAX && val < TINGGI_MIN) {
+                    berat = val;
+                }
+            }
+
+            // Kalau masih ada yang kosong, coba dari angka yang tersisa
+            for (int val : angkaList) {
+                if (berat == null && val >= BERAT_MIN && val <= BERAT_MAX
+                        && (tinggi == null || val != tinggi)) {
+                    berat = val;
                 }
             }
         }
 
+        // ── Validasi: tidak ada data sama sekali ─────────────────────────────
         if (tinggi == null && berat == null) {
-            return "Mohon maaf, saya belum bisa menentukan ukuran Anda. Bisa informasikan tinggi badan (cm) dan berat badan (kg) Anda?";
+            return "[ Rekomendasi Ukuran ]\n\n" +
+                    "Mohon maaf, saya belum bisa menentukan ukuran Anda.\n" +
+                    "Silakan masukkan tinggi badan (cm) dan berat badan (kg) Anda.\n\n" +
+                    "Contoh:\n" +
+                    "  • \"Tinggi saya 170cm dan berat 65kg\"\n" +
+                    "  • \"TB 160 BB 55\"\n" +
+                    "  • \"Rekomendasi ukuran tinggi 175 berat 70\"\n\n" +
+                    "Rentang yang diterima:\n" +
+                    "  - Tinggi: " + TINGGI_MIN + " – " + TINGGI_MAX + " cm\n" +
+                    "  - Berat : " + BERAT_MIN + " – " + BERAT_MAX + " kg";
         }
 
+        // ── Validasi rentang realistis ────────────────────────────────────────
+        StringBuilder peringatan = new StringBuilder();
+        boolean adaKesalahan = false;
+
+        if (tinggi != null && (tinggi < TINGGI_MIN || tinggi > TINGGI_MAX)) {
+            peringatan.append("⚠ Tinggi badan ").append(tinggi).append(" cm tidak realistis. ")
+                    .append("Rentang yang diterima: ").append(TINGGI_MIN).append(" – ").append(TINGGI_MAX).append(" cm.\n");
+            adaKesalahan = true;
+        }
+
+        if (berat != null && (berat < BERAT_MIN || berat > BERAT_MAX)) {
+            peringatan.append("⚠ Berat badan ").append(berat).append(" kg tidak realistis. ")
+                    .append("Rentang yang diterima: ").append(BERAT_MIN).append(" – ").append(BERAT_MAX).append(" kg.\n");
+            adaKesalahan = true;
+        }
+
+        // Validasi kombinasi tinggi-berat yang tidak proporsional
+        if (!adaKesalahan && tinggi != null && berat != null) {
+            double bmi = (double) berat / Math.pow((double) tinggi / 100.0, 2);
+            if (bmi < 10 || bmi > 60) {
+                peringatan.append("⚠ Kombinasi tinggi ").append(tinggi).append(" cm dan berat ")
+                        .append(berat).append(" kg tampak tidak proporsional.\n");
+                adaKesalahan = true;
+            }
+        }
+
+        if (adaKesalahan) {
+            return "[ Rekomendasi Ukuran ]\n\n" +
+                    peringatan.toString() +
+                    "\nMohon masukkan data yang sesuai agar kami bisa memberikan rekomendasi yang akurat.\n\n" +
+                    "Contoh:\n" +
+                    "  • \"Tinggi saya 170cm dan berat 65kg\"\n" +
+                    "  • \"TB 160 BB 55\"\n\n" +
+                    "Rentang yang diterima:\n" +
+                    "  - Tinggi: " + TINGGI_MIN + " – " + TINGGI_MAX + " cm\n" +
+                    "  - Berat : " + BERAT_MIN + " – " + BERAT_MAX + " kg";
+        }
+
+        // ── Hitung rekomendasi ukuran ────────────────────────────────────────
+        // Konversi tinggi ke skor numerik (1=S, 2=M, 3=L, 4=XL, 5=XXL)
+        int skorTinggi = 0;
         String sizeTinggi = null;
         if (tinggi != null) {
-            if (tinggi < 155)
-                sizeTinggi = "S";
-            else if (tinggi < 170)
-                sizeTinggi = "M";
-            else if (tinggi < 185)
-                sizeTinggi = "L";
-            else
-                sizeTinggi = "XL";
+            if (tinggi < 155)      { sizeTinggi = "S";   skorTinggi = 1; }
+            else if (tinggi < 165) { sizeTinggi = "M";   skorTinggi = 2; }
+            else if (tinggi < 175) { sizeTinggi = "L";   skorTinggi = 3; }
+            else if (tinggi < 185) { sizeTinggi = "XL";  skorTinggi = 4; }
+            else                   { sizeTinggi = "XXL"; skorTinggi = 5; }
         }
 
+        // Konversi berat ke skor numerik
+        int skorBerat = 0;
         String sizeBerat = null;
         if (berat != null) {
-            if (berat < 50)
-                sizeBerat = "S";
-            else if (berat < 65)
-                sizeBerat = "M";
-            else if (berat < 80)
-                sizeBerat = "L";
-            else
-                sizeBerat = "XL";
+            if (berat < 50)      { sizeBerat = "S";   skorBerat = 1; }
+            else if (berat < 60) { sizeBerat = "M";   skorBerat = 2; }
+            else if (berat < 75) { sizeBerat = "L";   skorBerat = 3; }
+            else if (berat < 90) { sizeBerat = "XL";  skorBerat = 4; }
+            else                 { sizeBerat = "XXL"; skorBerat = 5; }
         }
 
-        // Tentukan ukuran final (ambil yang paling besar jika ada dua data)
-        String finalSize = "M"; // default
+        // Tentukan ukuran final dengan kombinasi berbobot:
+        // Berat badan lebih berpengaruh pada fitting busana (60%), tinggi badan (40%)
+        String finalSize;
         if (sizeTinggi != null && sizeBerat != null) {
-            finalSize = compareSize(sizeTinggi, sizeBerat) >= 0 ? sizeTinggi : sizeBerat;
+            double skorKombinasi = (skorBerat * 0.6) + (skorTinggi * 0.4);
+            int skorFinal = (int) Math.round(skorKombinasi);
+            // Clamp ke rentang 1-5
+            skorFinal = Math.max(1, Math.min(5, skorFinal));
+            finalSize = skorKeUkuran(skorFinal);
         } else if (sizeTinggi != null) {
             finalSize = sizeTinggi;
         } else if (sizeBerat != null) {
             finalSize = sizeBerat;
+        } else {
+            finalSize = "M"; // default
         }
 
         StringBuilder res = new StringBuilder();
         res.append("[ Rekomendasi Ukuran ]\n\n");
         res.append("Berdasarkan data yang Anda berikan:\n");
         if (tinggi != null)
-            res.append("- Tinggi: ").append(tinggi).append(" cm\n");
+            res.append("  • Tinggi Badan : ").append(tinggi).append(" cm\n");
         if (berat != null)
-            res.append("- Berat: ").append(berat).append(" kg\n");
-        res.append("\nKami merekomendasikan ukuran: ").append(finalSize).append("\n\n");
+            res.append("  • Berat Badan  : ").append(berat).append(" kg\n");
+
+        res.append("\nKami merekomendasikan ukuran: ").append(finalSize).append("\n");
+
+        // Tambahkan keterangan jika ukuran tinggi dan berat timpang
+        if (sizeTinggi != null && sizeBerat != null && !sizeTinggi.equals(sizeBerat)) {
+            res.append("\nKeterangan: Ukuran berdasarkan tinggi Anda (")
+                    .append(sizeTinggi).append(") dan berat Anda (").append(sizeBerat)
+                    .append(") berbeda, sehingga kami mengkombinasikan keduanya untuk hasil yang paling pas.\n");
+        }
+
         res.append(
-                "Catatan: Rekomendasi ini bersifat perkiraan. Kami sangat menyarankan Anda untuk melakukan fitting langsung di toko kami untuk kenyamanan maksimal.");
+                "\nCatatan: Rekomendasi ini bersifat perkiraan. Kami sangat menyarankan Anda untuk melakukan fitting langsung di toko kami untuk kenyamanan maksimal.");
 
         return res.toString();
+    }
+
+    /** Konversi skor numerik ke label ukuran. */
+    private String skorKeUkuran(int skor) {
+        return switch (skor) {
+            case 1 -> "S";
+            case 2 -> "M";
+            case 3 -> "L";
+            case 4 -> "XL";
+            case 5 -> "XXL";
+            default -> "M";
+        };
     }
 
     private Integer extractNumber(String input, String keyword, String unit) {
