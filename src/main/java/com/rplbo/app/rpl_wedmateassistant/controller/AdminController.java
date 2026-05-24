@@ -109,8 +109,8 @@ public class AdminController {
         txtCari.clear();
 
         // Update button styles
-        String styleActive = "-fx-background-color: #334155; -fx-text-fill: white; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 12 16; -fx-background-radius: 8; -fx-cursor: hand;";
-        String styleInactive = "-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 12 16; -fx-background-radius: 8; -fx-cursor: hand;";
+        String styleActive = "-fx-background-color: #5C3D2E; -fx-text-fill: white; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 12 16; -fx-background-radius: 8; -fx-cursor: hand;";
+        String styleInactive = "-fx-background-color: transparent; -fx-text-fill: #A08775; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 12 16; -fx-background-radius: 8; -fx-cursor: hand;";
 
         btnSectionKnowledge.setStyle(seksi == Seksi.KNOWLEDGE ? styleActive : styleInactive);
         btnSectionPakaian.setStyle(seksi == Seksi.PAKAIAN ? styleActive : styleInactive);

@@ -32,43 +32,43 @@
     <!-- ══════════════════════════════════════════════════════ -->
     <!-- KIRI: Sidebar (Static Info)                           -->
     <!-- ══════════════════════════════════════════════════════ -->
-    <VBox alignment="CENTER" SplitPane.resizableWithParent="false" style="-fx-background-color: #FFFFFF; -fx-padding: 20;">
-        <VBox style="-fx-background-color: #FFF7F2; -fx-border-color: #E2C0A5; -fx-border-width: 1.5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 24; -fx-spacing: 12;" maxWidth="260">
+    <VBox alignment="CENTER" SplitPane.resizableWithParent="false" style="-fx-background-color: #FFFCF8; -fx-padding: 20;">
+        <VBox style="-fx-background-color: #FFF5EC; -fx-border-color: #D4A574; -fx-border-width: 1.5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 24; -fx-spacing: 12;" maxWidth="260">
             
             <!-- Icon Box -->
-            <StackPane style="-fx-background-color: linear-gradient(to bottom, #B66B4B 35%, #E2AE94 35%); -fx-background-radius: 8; -fx-min-width: 48; -fx-min-height: 44; -fx-max-width: 48; -fx-max-height: 44;" alignment="BOTTOM_CENTER">
-                <Label text="&lt; &gt;" style="-fx-text-fill: #924B2C; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 0 0 6 0;"/>
+            <StackPane style="-fx-background-color: linear-gradient(to bottom, #8B5E3C 35%, #D4A574 35%); -fx-background-radius: 8; -fx-min-width: 48; -fx-min-height: 44; -fx-max-width: 48; -fx-max-height: 44;" alignment="BOTTOM_CENTER">
+                <Label text="&lt; &gt;" style="-fx-text-fill: #5C3D2E; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 0 0 6 0;"/>
             </StackPane>
 
             <!-- Title -->
-            <Label text="WedMate" style="-fx-text-fill: #2E3A3F; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 8 0 0 0;"/>
+            <Label text="WedMate" style="-fx-text-fill: #3C2415; -fx-font-weight: bold; -fx-font-size: 16px; -fx-padding: 8 0 0 0;"/>
 
             <!-- Description -->
-            <Label text="WedMate Chatbot, your weding asistant mate." wrapText="true" style="-fx-text-fill: #829587; -fx-font-size: 14px; -fx-line-spacing: 5;"/>
+            <Label text="WedMate Chatbot, your weding asistant mate." wrapText="true" style="-fx-text-fill: #9C8575; -fx-font-size: 14px; -fx-line-spacing: 5;"/>
 
             <!-- Link/Action -->
-            <Label text="Kunjungi WedMate" style="-fx-text-fill: #C3795B; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 16 0 0 0;"/>
+            <Label text="Kunjungi WedMate" style="-fx-text-fill: #C8956C; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 16 0 0 0;"/>
         </VBox>
         <Region VBox.vgrow="ALWAYS"/>
-        <Button fx:id="btnKembali" text="&lt; Kembali ke Menu" onAction="#handleKembali" maxWidth="Infinity" style="-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 8; -fx-cursor: hand;"/>
+        <Button fx:id="btnKembali" text="&lt; Kembali ke Menu" onAction="#handleKembali" maxWidth="Infinity" style="-fx-background-color: #FFF5EC; -fx-text-fill: #7A6555; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 8; -fx-cursor: hand;"/>
     </VBox>
 
     <!-- ══════════════════════════════════════════════════════ -->
     <!-- KANAN: Area percakapan                                -->
     <!-- ══════════════════════════════════════════════════════ -->
-    <BorderPane style="-fx-background-color: #F8FAFC;">
+    <BorderPane style="-fx-background-color: #FDF8F3;">
 
         <!-- ── ATAS: Header bot ──────────────────────────── -->
         <top>
-            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: #FFFFFF; -fx-padding: 15 25; -fx-border-color: #E2E8F0; -fx-border-width: 0 0 1 0;">
+            <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-background-color: #FFFCF8; -fx-padding: 15 25; -fx-border-color: #E8D5C4; -fx-border-width: 0 0 1 0;">
                 <!-- Avatar lingkaran -->
-                <StackPane style="-fx-background-color: #D97706; -fx-background-radius: 25; -fx-min-width: 45; -fx-min-height: 45;">
+                <StackPane style="-fx-background-color: #C8956C; -fx-background-radius: 25; -fx-min-width: 45; -fx-min-height: 45;">
                     <Label text="W" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"/>
                 </StackPane>
 
                 <!-- Nama + status -->
                 <VBox spacing="2" alignment="CENTER_LEFT">
-                    <Label text="WedMate Assistant" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
+                    <Label text="WedMate Assistant" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #3C2415;"/>
                     <Label fx:id="lblStatus" text="● Online" style="-fx-font-size: 12px; -fx-text-fill: #22C55E;"/>
                 </VBox>
 
@@ -87,14 +87,14 @@
                         hbarPolicy="NEVER"
                         vbarPolicy="AS_NEEDED">
                 <VBox fx:id="chatBox"
-                      style="-fx-padding: 20 30; -fx-spacing: 20; -fx-background-color: #F8FAFC;"
+                      style="-fx-padding: 20 30; -fx-spacing: 20; -fx-background-color: #FDF8F3;"
                       fillWidth="true"/>
             </ScrollPane>
         </center>
 
         <!-- ── BAWAH: Quick Reply + Input bar ────────────── -->
         <bottom>
-            <VBox style="-fx-background-color: #FFFFFF; -fx-padding: 15 25; -fx-border-color: #E2E8F0; -fx-border-width: 1 0 0 0;">
+            <VBox style="-fx-background-color: #FFFCF8; -fx-padding: 15 25; -fx-border-color: #E8D5C4; -fx-border-width: 1 0 0 0;">
                 <!-- Quick reply buttons (ditampilkan/disembunyikan lewat controller) -->
                 <HBox fx:id="quickReplyBox"
                       spacing="10"
@@ -108,13 +108,13 @@
                       alignment="CENTER">
                     <TextField fx:id="txtInput"
                                promptText="Ketik pesan Anda di sini"
-                               style="-fx-background-color: #F1F5F9; -fx-background-radius: 25; -fx-padding: 12 20; -fx-font-size: 14px;"
+                               style="-fx-background-color: #FFF5EC; -fx-background-radius: 25; -fx-padding: 12 20; -fx-font-size: 14px;"
                                onAction="#handleKirimPesan"
                                HBox.hgrow="ALWAYS"/>
                     <Button fx:id="btnKirim"
                             text="Kirim"
                             onAction="#handleKirimPesan"
-                            style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;"/>
+                            style="-fx-background-color: #8B5E3C; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;"/>
                 </HBox>
             </VBox>
         </bottom>
