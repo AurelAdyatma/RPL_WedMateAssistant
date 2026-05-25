@@ -59,6 +59,7 @@ public class ChatController {
     @FXML private TextField     txtInput;
     @FXML private Button        btnKirim;
     @FXML private Button        btnKembali;
+    @FXML private Button        btnClearChat;
 
     // ── State ─────────────────────────────────────────────────────────────────
 
@@ -178,6 +179,24 @@ public class ChatController {
             prosesInputDanBalas(teks);
         });
         jeda.play();
+    }
+
+    /** Menghapus seluruh isi chat lalu menampilkan salam awal lagi. */
+    @FXML
+    private void handleClearChat() {
+        chatBox.getChildren().clear();
+
+        if (sesiAktif != null) {
+            sesiAktif.getDaftarPesan().clear();
+        }
+
+        quickReplyShown = false;
+        quickReplyBox.getChildren().clear();
+        quickReplyBox.setVisible(false);
+        quickReplyBox.setManaged(false);
+
+        txtInput.clear();
+        tampilkanSalamAwal();
     }
 
 

@@ -115,6 +115,10 @@
                             text="Kirim"
                             onAction="#handleKirimPesan"
                             style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;"/>
+                    <Button fx:id="btnClearChat"
+                            text="Clear Chat"
+                            onAction="#handleClearChat"
+                            style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;"/>
                 </HBox>
             </VBox>
         </bottom>
