@@ -57,7 +57,7 @@ public class RegexMatcher {
 
         /** Pengguna bertanya soal harga, biaya, tarif, atau paket. */
         HARGA_PAKET(
-                "\\b(harga|biaya|tarif|paket|sewa|berapa|cost|bayar|budget|cicilan|dp|diskon|promo)\\b"),
+                "\\b(harga|biaya|tarif|paket|sewa|berapa|cost|bayar|budget|cicilan)\\b"),
 
         /** Pengguna ingin mengecek ketersediaan stok atau tanggal. */
         CEK_KETERSEDIAAN(
@@ -130,6 +130,18 @@ public class RegexMatcher {
         /** Pengguna menanyakan rekomendasi ukuran berdasarkan tinggi/berat badan. */
         REKOMENDASI_UKURAN(
                 "\\b(tinggi|berat|ukuran|size|rekomendasi\\s+ukuran|cm|kg)\\b.*\\d+"),
+
+        /** Pertanyaan kebijakan toko (DP, denda, pengiriman, dll). */
+        KEBIJAKAN(
+                "\\b(kerusakan|noda|denda|dp|deposit|uang\\s+muka|pelunasan|fitting|revisi|ubah|pengiriman|ongkir|kirim|batal|reschedule|jadwal|diskon|member|promo|early\\s+booking|keterlambatan|telat|terlambat|pengembalian)\\b"),
+
+        /** Permintaan estimasi biaya. */
+        ESTIMASI_BIAYA(
+                "\\b(estimasi|hitung|kalkulasi|total|rincian|breakdown|simulasi)\\b.*\\b(biaya|harga|sewa|bayar)\\b|\\b(biaya|harga|sewa|bayar)\\b.*\\b(estimasi|hitung|kalkulasi|total|rincian|breakdown|simulasi)\\b"),
+
+        /** Rekomendasi tema/konsep. */
+        REKOMENDASI_TEMA(
+                "\\b(tema|konsep|style|gaya|nuansa)\\b.*\\b(pernikahan|nikah|wedding|acara)\\b|\\b(garden\\s*party|outdoor|bohemian|mewah|ballroom|royal|islami|syari|akad|korea|jepang|tionghoa)\\b"),
 
         /** Tidak ada kategori yang cocok. */
         TIDAK_DIKENAL(null);
@@ -256,9 +268,12 @@ public class RegexMatcher {
         // ── Prioritas 3: Transaksi / Intent Tinggi ───────────────────────────
         if (Kategori.RESERVASI.cocok(normal))         return Kategori.RESERVASI;
         if (Kategori.CEK_KETERSEDIAAN.cocok(normal))  return Kategori.CEK_KETERSEDIAAN;
+        if (Kategori.KEBIJAKAN.cocok(normal))         return Kategori.KEBIJAKAN;
+        if (Kategori.ESTIMASI_BIAYA.cocok(normal))    return Kategori.ESTIMASI_BIAYA;
+        if (Kategori.REKOMENDASI_TEMA.cocok(normal))  return Kategori.REKOMENDASI_TEMA;
+        if (Kategori.REKOMENDASI_UKURAN.cocok(normal))   return Kategori.REKOMENDASI_UKURAN;
         if (Kategori.HARGA_PAKET.cocok(normal))       return Kategori.HARGA_PAKET;
         if (Kategori.INFO_TOKO.cocok(normal))         return Kategori.INFO_TOKO;
-        if (Kategori.REKOMENDASI_UKURAN.cocok(normal))   return Kategori.REKOMENDASI_UKURAN;
 
         // ── Prioritas 4: Sub-kategori busana (Sangat Spesifik) ───────────────
         // A. Cek built-in pattern (Kata kunci utama yang paling akurat)

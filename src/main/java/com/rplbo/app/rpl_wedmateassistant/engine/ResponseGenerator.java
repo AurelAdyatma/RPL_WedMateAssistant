@@ -248,6 +248,34 @@ public class ResponseGenerator {
                         "Untuk memberikan rekomendasi ukuran yang akurat, silakan masukkan tinggi badan (cm) dan berat badan (kg) Anda.\n\n" +
                         "Contoh: 'Tinggi saya 170cm dan berat 65kg'");
 
+        RESPON_DEFAULT.put(Kategori.KEBIJAKAN,
+                "[ Kebijakan WedMate ]\n\n" +
+                        "Kami memiliki beberapa kebijakan terkait penyewaan:\n\n" +
+                        "1. DP & Pelunasan: DP 50% saat booking, pelunasan H-1 acara.\n" +
+                        "2. Fitting & Revisi: Gratis untuk paket Silver ke atas. Revisi ukuran gratis 1x.\n" +
+                        "3. Kerusakan: Noda ringan gratis. Kerusakan berat didenda 50%-100% harga sewa.\n" +
+                        "4. Pengiriman: Tersedia via kurir (ongkir ditanggung penyewa).\n" +
+                        "5. Reschedule: Boleh diubah maksimal H-3 sebelum acara (gratis 1x).\n\n" +
+                        "Silakan sebutkan kebijakan mana yang ingin Anda ketahui lebih lanjut.");
+
+        RESPON_DEFAULT.put(Kategori.ESTIMASI_BIAYA,
+                "[ Estimasi Biaya ]\n\n" +
+                        "Untuk menghitung estimasi biaya sewa, silakan sebutkan:\n" +
+                        "1. Jenis busana atau paket yang ingin disewa\n" +
+                        "2. Jumlah busana/item\n" +
+                        "3. Durasi sewa (berapa hari)\n\n" +
+                        "Contoh: 'Hitung estimasi 2 kebaya sunda untuk 3 hari'");
+
+        RESPON_DEFAULT.put(Kategori.REKOMENDASI_TEMA,
+                "[ Rekomendasi Tema ]\n\n" +
+                        "Kami memiliki koleksi busana untuk berbagai tema pernikahan:\n" +
+                        "• Garden Party / Outdoor (Bohemian, Kasual)\n" +
+                        "• Mewah / Ballroom (Ball Gown, Jas Formal)\n" +
+                        "• Islami / Syar'i (Gamis, Hijab Pengantin)\n" +
+                        "• Adat Tradisional (Jawa, Sunda, Minang, Bali)\n" +
+                        "• Internasional (Korea, Jepang, Tionghoa)\n\n" +
+                        "Sebutkan konsep acara Anda, dan kami akan carikan busana yang paling cocok!");
+
         RESPON_DEFAULT.put(Kategori.TIDAK_DIKENAL, FALLBACK);
     }
 

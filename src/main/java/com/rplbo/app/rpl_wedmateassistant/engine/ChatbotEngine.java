@@ -108,16 +108,22 @@ public class ChatbotEngine {
 
         if (isDetailRequest) {
             responsPakaian = generateDetailPakaian(inputPengguna, kategori, attachedImages);
-        } else if (isPencarianBusana) {
-            responsPakaian = generateResponsPencarianKombinasi(inputPengguna, warnaDicari, ukuranDicari, jenisDicari, budgetBusana);
-        } else if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
-            responsPakaian = generateResponsGender(kategori);
         } else if (kategori == Kategori.REKOMENDASI_UKURAN) {
             responsPakaian = generateRekomendasiUkuran(inputPengguna);
         } else if (kategori == Kategori.HARGA_PAKET && mengandungBudget(inputPengguna)) {
             responsPakaian = generateRekomendasiPaketBudget(inputPengguna);
         } else if (kategori == Kategori.HARGA_PAKET) {
             responsPakaian = generateDaftarPaket();
+        } else if (kategori == Kategori.KEBIJAKAN) {
+            responsPakaian = generateResponsKebijakan(inputPengguna);
+        } else if (kategori == Kategori.ESTIMASI_BIAYA) {
+            responsPakaian = generateEstimasiBiaya(inputPengguna);
+        } else if (kategori == Kategori.REKOMENDASI_TEMA) {
+            responsPakaian = generateRekomendasiTema(inputPengguna);
+        } else if (isPencarianBusana) {
+            responsPakaian = generateResponsPencarianKombinasi(inputPengguna, warnaDicari, ukuranDicari, jenisDicari, budgetBusana);
+        } else if (kategori == Kategori.BUSANA_PRIA || kategori == Kategori.BUSANA_WANITA) {
+            responsPakaian = generateResponsGender(kategori);
         } else if (kategori != null && (kategori.name().startsWith("BUSANA_") || kategori == Kategori.LIHAT_BUSANA)) {
             if (kategori == Kategori.LIHAT_BUSANA) {
                 responsPakaian = null; // Biarkan fallback ke ResponseGenerator default
@@ -582,6 +588,11 @@ public class ChatbotEngine {
                 nominal = (long) (angka * 1_000);
             }
 
+            // Abaikan angka kecil (kemungkinan jumlah hari, item, atau tanggal)
+            if (nominal < 10000) {
+                continue;
+            }
+
             if (nominal > budgetTerbesar) {
                 budgetTerbesar = nominal;
             }
@@ -895,6 +906,190 @@ private String generateResponsPencarianKombinasi(String input, String warna, Str
             case BUSANA_PESTA -> "Pesta";
             default -> null;
         };
+    }
+
+    private String generateResponsKebijakan(String input) {
+        String normal = input.toLowerCase();
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ Info Kebijakan WedMate ]\n\n");
+        boolean found = false;
+
+        if (normal.matches(".*\\b(kerusakan|noda|denda|telat|terlambat)\\b.*")) {
+            sb.append("• Kerusakan & Denda:\n");
+            sb.append("  - Noda/kerusakan ringan: Gratis (sudah termasuk sewa).\n");
+            sb.append("  - Kerusakan berat: Denda 50%-100% harga busana (dievaluasi saat pengembalian).\n");
+            sb.append("  - Keterlambatan pengembalian: Denda Rp 100.000/hari.\n\n");
+            found = true;
+        }
+        if (normal.matches(".*\\b(dp|deposit|uang\\s*muka|pelunasan|bayar)\\b.*")) {
+            sb.append("• Pembayaran (DP & Pelunasan):\n");
+            sb.append("  - DP: 50% dari total biaya saat booking.\n");
+            sb.append("  - Pelunasan: Maksimal H-1 sebelum tanggal acara.\n\n");
+            found = true;
+        }
+        if (normal.matches(".*\\b(fitting|revisi|ukuran)\\b.*")) {
+            sb.append("• Fitting & Revisi:\n");
+            sb.append("  - Fitting: Gratis untuk paket Silver ke atas. Berbayar Rp 50.000 untuk paket Basic.\n");
+            sb.append("  - Revisi Ukuran: Gratis 1x. Revisi ke-2 dan seterusnya Rp 50.000/kali.\n\n");
+            found = true;
+        }
+        if (normal.matches(".*\\b(pengiriman|ongkir|kirim|luar\\s*kota)\\b.*")) {
+            sb.append("• Pengiriman:\n");
+            sb.append("  - Tersedia via JNE/J&T untuk luar kota (ongkir ditanggung pelanggan).\n");
+            sb.append("  - Biaya packing khusus: Rp 50.000.\n\n");
+            found = true;
+        }
+        if (normal.matches(".*\\b(batal|reschedule|jadwal|ubah)\\b.*")) {
+            sb.append("• Reschedule & Pembatalan:\n");
+            sb.append("  - Ubah jadwal diperbolehkan maksimal H-3 sebelum tanggal sewa (gratis 1x).\n\n");
+            found = true;
+        }
+        if (normal.matches(".*\\b(diskon|member|promo|early\\s*booking)\\b.*")) {
+            sb.append("• Diskon & Promo:\n");
+            sb.append("  - Member: Diskon 10% untuk pelanggan yang pernah menyewa sebelumnya.\n");
+            sb.append("  - Early Booking: Diskon 15% jika booking lebih dari 2 bulan sebelum acara.\n\n");
+            found = true;
+        }
+
+        if (!found) {
+            return null; // Fallback ke default response
+        }
+
+        return sb.toString().trim();
+    }
+
+    private String generateEstimasiBiaya(String input) {
+        String normal = input.toLowerCase();
+
+        int jumlahHari = 1;
+        java.util.regex.Matcher mHari = java.util.regex.Pattern.compile("(\\d+)\\s*(hari)").matcher(normal);
+        if (mHari.find()) {
+            jumlahHari = Integer.parseInt(mHari.group(1));
+        }
+
+        int jumlahItem = 1;
+        java.util.regex.Matcher mItem = java.util.regex.Pattern.compile("(\\d+)\\s*(item|busana|baju|gaun|jas|pasang)").matcher(normal);
+        if (mItem.find()) {
+            jumlahItem = Integer.parseInt(mItem.group(1));
+        }
+
+        long hargaBusana = extractBudget(input);
+
+        // Jika tidak ada budget eksplisit, coba cari jenis busana dan ambil rata-rata harga
+        if (hargaBusana <= 0) {
+            String jenisDicari = ekstrakJenisBusana(input);
+            if (jenisDicari != null) {
+                List<PakaianWedding> cocok = daftarPakaian.stream()
+                        .filter(p -> cocokDenganJenis(p, jenisDicari))
+                        .toList();
+                if (!cocok.isEmpty()) {
+                    long totalHargaCocok = 0;
+                    for (PakaianWedding p : cocok) totalHargaCocok += p.getHargaSewa();
+                    hargaBusana = totalHargaCocok / cocok.size(); // rata-rata
+                }
+            }
+        }
+
+        if (hargaBusana <= 0) {
+            hargaBusana = 500000; // Harga default estimasi jika tidak ada info sama sekali
+        }
+
+        long subtotal = hargaBusana * jumlahHari * jumlahItem;
+        long diskon = 0;
+        String noteDiskon = "";
+
+        if (normal.contains("member")) {
+            diskon = (long) (subtotal * 0.10);
+            noteDiskon = "Diskon Member (10%)";
+        } else if (normal.contains("early booking") || normal.contains("promo")) {
+            diskon = (long) (subtotal * 0.15);
+            noteDiskon = "Diskon Early Booking (15%)";
+        }
+
+        long totalAkhir = subtotal - diskon;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ Estimasi Biaya Sewa ]\n\n");
+        sb.append("Berikut rincian perkiraan biaya berdasarkan informasi Anda:\n\n");
+        sb.append("• Harga Busana : Rp ").append(String.format("%,d", hargaBusana)).append(" / hari\n");
+        sb.append("• Jumlah Busana: ").append(jumlahItem).append(" item\n");
+        sb.append("• Durasi Sewa  : ").append(jumlahHari).append(" hari\n");
+        sb.append("--------------------------------\n");
+        sb.append("Subtotal       : Rp ").append(String.format("%,d", subtotal)).append("\n");
+
+        if (diskon > 0) {
+            sb.append("Diskon         : -Rp ").append(String.format("%,d", diskon)).append(" (").append(noteDiskon).append(")\n");
+            sb.append("--------------------------------\n");
+        }
+
+        sb.append("Total Estimasi : Rp ").append(String.format("%,d", totalAkhir)).append("\n\n");
+        
+        // Cek rekomendasi paket
+        if (jumlahItem >= 2 || jumlahHari >= 2) {
+            sb.append("💡 *Tip:* Karena Anda menyewa lebih dari 1 item/hari, kami sarankan melihat opsi **Paket Sewa** kami yang mungkin lebih hemat! Ketik 'paket sewa' untuk info lebih lanjut.");
+        }
+
+        return sb.toString();
+    }
+
+    private String generateRekomendasiTema(String input) {
+        String normal = input.toLowerCase();
+        Kategori kategoriCocok = null;
+        String namaTema = "";
+
+        if (normal.matches(".*\\b(garden\\s*party|outdoor|bohemian|pantai|beach)\\b.*")) {
+            kategoriCocok = Kategori.BUSANA_BERTEMA;
+            namaTema = "Garden Party / Outdoor / Bohemian";
+        } else if (normal.matches(".*\\b(mewah|ballroom|royal|glamor)\\b.*")) {
+            kategoriCocok = Kategori.BUSANA_MODERN; // Atau BERTEMA
+            namaTema = "Mewah / Royal / Ballroom";
+        } else if (normal.matches(".*\\b(islami|syari|akad\\s*nikah)\\b.*")) {
+            kategoriCocok = Kategori.BUSANA_MUSLIM;
+            namaTema = "Islami / Syar'i / Akad Nikah";
+        } else if (normal.matches(".*\\b(adat|jawa|sunda|minang|bali|tradisional)\\b.*")) {
+            kategoriCocok = Kategori.BUSANA_TRADISIONAL;
+            namaTema = "Adat Tradisional";
+        } else if (normal.matches(".*\\b(korea|jepang|tionghoa|internasional)\\b.*")) {
+            kategoriCocok = Kategori.BUSANA_INTERNASIONAL;
+            namaTema = "Internasional (Korea/Jepang/Tionghoa)";
+        } else if (normal.matches(".*\\b(prewedding|foto)\\b.*")) {
+            kategoriCocok = Kategori.BUSANA_PREWEDDING;
+            namaTema = "Pre-Wedding";
+        } else if (normal.matches(".*\\b(pesta|semi\\s*formal)\\b.*")) {
+            kategoriCocok = Kategori.BUSANA_PESTA;
+            namaTema = "Semi-Formal / Pesta";
+        }
+
+        if (kategoriCocok == null) {
+            return null; // Fallback ke default response
+        }
+
+        String dbKategori = getDbKategori(kategoriCocok);
+        List<PakaianWedding> cocok = daftarPakaian.stream()
+                .filter(p -> p.getKategori().equalsIgnoreCase(dbKategori))
+                .toList();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ Rekomendasi Tema: ").append(namaTema).append(" ]\n\n");
+        
+        if (cocok.isEmpty()) {
+            sb.append("Maaf, koleksi busana untuk tema ini sedang kosong. Silakan hubungi admin kami untuk konsultasi.");
+            return sb.toString();
+        }
+
+        sb.append("Berikut beberapa rekomendasi busana yang cocok dengan tema impian Anda:\n\n");
+
+        int limit = Math.min(3, cocok.size());
+        for (int i = 0; i < limit; i++) {
+            PakaianWedding p = cocok.get(i);
+            sb.append("• ").append(p.getNama()).append("\n");
+            sb.append("  Ukuran : ").append(p.getUkuranTersedia()).append("\n");
+            sb.append("  Harga  : Rp ").append(String.format("%,d", (long) p.getHargaSewa())).append("/hari\n\n");
+        }
+
+        sb.append("Ketik 'lihat busana ").append(dbKategori.toLowerCase()).append("' untuk melihat semua koleksinya secara lengkap!");
+
+        return sb.toString();
     }
 
     private String generateDetailPakaian(String input, Kategori kategori, List<byte[]> imageDataList) {
