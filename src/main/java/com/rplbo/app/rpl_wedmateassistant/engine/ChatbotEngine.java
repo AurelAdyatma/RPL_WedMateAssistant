@@ -1,15 +1,15 @@
 package com.rplbo.app.rpl_wedmateassistant.engine;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import com.rplbo.app.rpl_wedmateassistant.engine.RegexMatcher.Kategori;
 import com.rplbo.app.rpl_wedmateassistant.model.EntriKnowledge;
 import com.rplbo.app.rpl_wedmateassistant.model.PakaianWedding;
 import com.rplbo.app.rpl_wedmateassistant.model.PaketSewa;
 import com.rplbo.app.rpl_wedmateassistant.model.Pesan;
 import com.rplbo.app.rpl_wedmateassistant.model.Sesi;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * Orkestrator utama chatbot WedMate Assistant.
@@ -116,6 +116,8 @@ public class ChatbotEngine {
             responsPakaian = generateRekomendasiUkuran(inputPengguna);
         } else if (kategori == Kategori.HARGA_PAKET && mengandungBudget(inputPengguna)) {
             responsPakaian = generateRekomendasiPaketBudget(inputPengguna);
+        } else if (kategori == Kategori.HARGA_PAKET) {
+            responsPakaian = generateDaftarPaket();
         } else if (kategori != null && (kategori.name().startsWith("BUSANA_") || kategori == Kategori.LIHAT_BUSANA)) {
             if (kategori == Kategori.LIHAT_BUSANA) {
                 responsPakaian = null; // Biarkan fallback ke ResponseGenerator default
@@ -437,6 +439,35 @@ public class ChatbotEngine {
         String normal = input.toLowerCase();
         return normal.matches(".*\\b(budget|dana|uang|modal|maksimal|max|dibawah|di bawah|sekitar|rekomendasi|cocok)\\b.*\\d+.*")
                 || normal.matches(".*\\d+\\s*(juta|jt|ribu|rb|k).*");
+    }
+
+    /**
+     * Menghasilkan daftar paket sewa secara dinamis dari database.
+     * Digunakan saat pengguna bertanya harga/paket tanpa menyebut budget tertentu.
+     */
+    private String generateDaftarPaket() {
+        if (daftarPaket == null || daftarPaket.isEmpty()) {
+            return "[ Harga & Paket Sewa WedMate ]\n\n" +
+                    "Maaf, data paket sewa belum tersedia saat ini.\n" +
+                    "Silakan hubungi admin untuk informasi paket terbaru.";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ Harga & Paket Sewa WedMate ]\n\n");
+
+        for (PaketSewa p : daftarPaket) {
+            sb.append(p.getNamaPaket());
+            sb.append(" :");
+            sb.append("\n");
+            sb.append("Rp ").append(String.format("%,d", (long) p.getHargaTotal())).append("\n");
+            if (p.getDeskripsi() != null && !p.getDeskripsi().isBlank()) {
+                sb.append("").append(p.getDeskripsi()).append("\n");
+            }
+            sb.append("\n");
+        }
+
+        sb.append("Ketik 'reservasi' untuk mulai memesan.");
+        return sb.toString();
     }
 
     /**

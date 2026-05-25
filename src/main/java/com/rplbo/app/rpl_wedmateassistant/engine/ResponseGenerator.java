@@ -101,13 +101,17 @@ public class ResponseGenerator {
         // ── Harga & Paket ─────────────────────────────────────────────────────
         RESPON_DEFAULT.put(Kategori.HARGA_PAKET,
                 "[ Harga & Paket Sewa WedMate ]\n\n" +
-                        "  Paket Basic     : mulai Rp   500.000 / hari\n" +
-                        "  Paket Silver    : mulai Rp 1.200.000 / 2 hari\n" +
-                        "  Paket Gold      : mulai Rp 2.500.000 (termasuk aksesoris)\n" +
-                        "  Paket Platinum  : mulai Rp 4.000.000 (all-in, termasuk MUA)\n\n" +
-                        "Catatan: Harga dapat berbeda tergantung item yang dipilih.\n" +
-                        "Tersedia diskon untuk pemesanan jauh hari (min. 3 bulan).\n\n" +
-                        "Ketik 'reservasi' untuk mulai memesan, atau tanyakan detail paket tertentu.");
+                        "  Paket Basic       : Rp    500.000 / hari\n" +
+                        "                     1 busana pengantin + aksesoris dasar\n\n" +
+                        "  Paket Silver      : Rp  1.200.000 / 2 hari\n" +
+                        "                     1 busana + 2 busana keluarga + fitting\n\n" +
+                        "  Paket Gold        : Rp  2.500.000 / 2 hari\n" +
+                        "                     Busana + 4 keluarga + 4 pagar ayu + aksesoris\n\n" +
+                        "  Paket Platinum    : Rp  4.000.000 (all-in)\n" +
+                        "                     Semua termasuk MUA & konsultasi\n\n" +
+                        "  Paket Pre-Wedding : Rp    800.000 / sesi\n" +
+                        "                     2 outfit couple + stylist\n\n" +
+                        "Ketik 'reservasi' untuk mulai memesan.");
 
         // ── Cek Ketersediaan ──────────────────────────────────────────────────
         RESPON_DEFAULT.put(Kategori.CEK_KETERSEDIAAN,

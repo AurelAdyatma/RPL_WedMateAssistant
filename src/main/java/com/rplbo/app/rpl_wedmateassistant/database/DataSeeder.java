@@ -27,6 +27,16 @@ public class DataSeeder {
             if (isEmpty(conn, "pakaian_wedding")) seedPakaian(conn);
             if (isEmpty(conn, "paket_sewa"))      seedPaket(conn);
             if (isEmpty(conn, "knowledge_base"))  seedKnowledgeBase(conn);
+
+            // Bersihkan entri HARGA_PAKET yang duplikat/hardcoded dari knowledge_base jika ada
+            try (PreparedStatement deleteStmt = conn.prepareStatement(
+                    "DELETE FROM knowledge_base WHERE kategori = 'HARGA_PAKET'")) {
+                int rows = deleteStmt.executeUpdate();
+                if (rows > 0) {
+                    System.out.println("[DataSeeder] Berhasil menghapus " + rows + " entri HARGA_PAKET duplikat.");
+                }
+            }
+
             System.out.println("[DataSeeder] Seeding selesai.");
         } catch (SQLException e) {
             System.err.println("[DataSeeder] Gagal seed: " + e.getMessage());
@@ -214,24 +224,6 @@ public class DataSeeder {
                 "Semua busana Jawa tersedia untuk sewa.\n" +
                 "Ketik 'cek ketersediaan' untuk pilih tanggal.",
                 "BUSANA_TRADISIONAL", 1
-            },
-
-            // HARGA_PAKET
-            {
-                "harga|biaya|tarif|bayar|budget|murah|mahal|paket|sewa",
-                "[ Harga & Paket Sewa WedMate ]\n\n" +
-                "  Paket Basic       : Rp    500.000 / hari\n" +
-                "                     1 busana pengantin + aksesoris dasar\n\n" +
-                "  Paket Silver      : Rp  1.200.000 / 2 hari\n" +
-                "                     1 busana + 2 busana keluarga + fitting\n\n" +
-                "  Paket Gold        : Rp  2.500.000 / 2 hari\n" +
-                "                     Busana + 4 keluarga + 4 pagar ayu + aksesoris\n\n" +
-                "  Paket Platinum    : Rp  4.000.000 (all-in)\n" +
-                "                     Semua termasuk MUA & konsultasi\n\n" +
-                "  Paket Pre-Wedding : Rp    800.000 / sesi\n" +
-                "                     2 outfit couple + stylist\n\n" +
-                "Ketik 'reservasi' untuk mulai memesan.",
-                "HARGA_PAKET", 1
             },
 
             // CEK_KETERSEDIAAN

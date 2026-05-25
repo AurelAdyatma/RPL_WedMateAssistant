@@ -236,11 +236,13 @@ public class ChatController {
     // ═════════════════════════════════════════════════════════════════════════
 
     /** Memproses input pengguna via engine dan menampilkan balasan bot. */
-    /** Memproses input pengguna via engine dan menampilkan balasan bot. */
     private void prosesInputDanBalas(String inputPengguna) {
         // Simpan pesan user ke sesi
         Pesan pesanUser = new Pesan(sesiAktif.getId(), inputPengguna, false);
         sesiAktif.getDaftarPesan().add(pesanUser);
+
+        // Memuat ulang basis data dari DB agar perubahan di Admin Panel langsung terupdate di Chatbot
+        muatKnowledgeBase();
 
         // Proses via engine
         Pesan pesanBot = engine.prosesPesan(inputPengguna, sesiAktif);
