@@ -3,7 +3,6 @@ module com.rplbo.app.rpl_wedmateassistant {
     requires javafx.fxml;
 
     requires org.controlsfx.controls;
-    requires org.kordamp.ikonli.core;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
 

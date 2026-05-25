@@ -1,24 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.SVGPath?>
-<?import javafx.scene.shape.Circle?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.paint.ImagePattern?>
-<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.Cursor?>
 
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.WelcomeController"
       alignment="CENTER" spacing="50"
-      style="-fx-background-color: #FDF8F3; -fx-padding: 50;">
+      style="-fx-background-color: #FFFFFF; -fx-padding: 50;">
 
     <!-- Header -->
     <VBox alignment="CENTER" spacing="8">
-        <Label text="Welcome to WedMate" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #3C2415;"/>
-        <Label text="Your Assistant for Wedding Dress" style="-fx-font-size: 16px; -fx-text-fill: #9C8575;"/>
+        <Label text="Welcome to WedMate" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111820;"/>
+        <Label text="Your Assistant for Wedding Dress" style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
     </VBox>
 
     <!-- Cards -->
@@ -26,73 +20,43 @@
         
         <!-- Card User -->
         <VBox fx:id="cardUser" alignment="CENTER" spacing="20" prefWidth="350" prefHeight="280"
-              style="-fx-background-color: transparent;"
+              style="-fx-background-color: #F4F9FD; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1;"
               onMouseClicked="#handleUserClick">
             <cursor>
                 <Cursor fx:constant="HAND"/>
             </cursor>
             <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
-                <StackPane>
-                    <!-- Outer aesthetic ring -->
-                    <Circle radius="102" fill="transparent" stroke="#E8D5C4" strokeWidth="4">
-                        <effect>
-                            <DropShadow color="#8B5E3C30" radius="20" spread="0.1"/>
-                        </effect>
-                    </Circle>
-                    <!-- Inner avatar -->
-                    <Circle radius="90" stroke="#8B5E3C" strokeWidth="3">
-                        <fill>
-                            <ImagePattern>
-                                <image>
-                                    <Image url="@../images/user_avatar.png"/>
-                                </image>
-                            </ImagePattern>
-                        </fill>
-                    </Circle>
+                <StackPane style="-fx-background-color: #1E293B; -fx-background-radius: 60; -fx-min-width: 100; -fx-min-height: 100; -fx-max-width: 100; -fx-max-height: 100;" alignment="CENTER">
+                    <Label text="U" style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: white;"/>
                 </StackPane>
             </VBox>
             <HBox alignment="CENTER" style="-fx-padding: 0 0 25 0;">
-                <Label text="Login sebagai " style="-fx-font-size: 16px; -fx-text-fill: #7A6555;"/>
-                <Label text="User" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #3C2415;"/>
+                <Label text="Login sebagai " style="-fx-font-size: 16px; -fx-text-fill: #4B5563;"/>
+                <Label text="User" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #111820;"/>
             </HBox>
         </VBox>
 
         <!-- Card Admin -->
         <VBox fx:id="cardAdmin" alignment="CENTER" spacing="20" prefWidth="350" prefHeight="280"
-              style="-fx-background-color: transparent;"
+              style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1;"
               onMouseClicked="#handleAdminClick">
             <cursor>
                 <Cursor fx:constant="HAND"/>
             </cursor>
             <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
-                <StackPane>
-                    <!-- Outer aesthetic ring -->
-                    <Circle radius="102" fill="transparent" stroke="#E8D5C4" strokeWidth="4">
-                        <effect>
-                            <DropShadow color="#8B5E3C30" radius="20" spread="0.1"/>
-                        </effect>
-                    </Circle>
-                    <!-- Inner avatar -->
-                    <Circle radius="90" stroke="#8B5E3C" strokeWidth="3">
-                        <fill>
-                            <ImagePattern>
-                                <image>
-                                    <Image url="@../images/admin_avatar.png"/>
-                                </image>
-                            </ImagePattern>
-                        </fill>
-                    </Circle>
+                <StackPane style="-fx-background-color: #D97706; -fx-background-radius: 60; -fx-min-width: 100; -fx-min-height: 100; -fx-max-width: 100; -fx-max-height: 100;" alignment="CENTER">
+                    <Label text="A" style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: white;"/>
                 </StackPane>
             </VBox>
             <HBox alignment="CENTER" style="-fx-padding: 0 0 25 0;">
-                <Label text="Login sebagai " style="-fx-font-size: 16px; -fx-text-fill: #7A6555;"/>
-                <Label text="Admin" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #3C2415;"/>
+                <Label text="Login sebagai " style="-fx-font-size: 16px; -fx-text-fill: #4B5563;"/>
+                <Label text="Admin" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #111820;"/>
             </HBox>
         </VBox>
 
     </HBox>
 
     <Button text="Lanjutkan" onAction="#handleLanjutkan" 
-            style="-fx-background-color: #8B5E3C; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 12 40; -fx-background-radius: 25; -fx-cursor: hand;" />
+            style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 12 40; -fx-background-radius: 25; -fx-cursor: hand;" />
 
 </VBox>

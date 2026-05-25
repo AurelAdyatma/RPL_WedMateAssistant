@@ -276,7 +276,7 @@ public class ChatController {
     private void tambahBubbleUser(String teks, LocalDateTime waktu) {
         // Label isi pesan
         Label lblPesan = new Label(teks);
-        lblPesan.setStyle("-fx-background-color: #5C3D2E; -fx-text-fill: white; -fx-padding: 12 18; -fx-background-radius: 16 16 0 16; -fx-font-size: 14px;");
+        lblPesan.setStyle("-fx-background-color: #2E3A3F; -fx-text-fill: white; -fx-padding: 12 18; -fx-background-radius: 16 16 0 16; -fx-font-size: 14px;");
         lblPesan.setMaxWidth(400);
         lblPesan.setWrapText(true);
 
@@ -304,12 +304,12 @@ public class ChatController {
     private void tambahBubbleBot(String teks, LocalDateTime waktu, List<byte[]> images) {
         // Avatar inisial bot
         StackPane avatar = new StackPane(new Label("W"));
-        avatar.setStyle("-fx-background-color: #C8956C; -fx-background-radius: 18; -fx-min-width: 36; -fx-min-height: 36;");
+        avatar.setStyle("-fx-background-color: #D97706; -fx-background-radius: 18; -fx-min-width: 36; -fx-min-height: 36;");
         ((Label) avatar.getChildren().get(0)).setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
 
         // Label isi pesan
         Label lblPesan = new Label(teks);
-        lblPesan.setStyle("-fx-background-color: #FFFCF8; -fx-text-fill: #3C2415; -fx-padding: 14 18; -fx-background-radius: 16 16 16 0; -fx-font-size: 14px; -fx-border-color: #E8D5C4; -fx-border-width: 1; -fx-border-radius: 16 16 16 0;");
+        lblPesan.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #1E293B; -fx-padding: 14 18; -fx-background-radius: 16 16 16 0; -fx-font-size: 14px; -fx-border-color: #E2E8F0; -fx-border-width: 1; -fx-border-radius: 16 16 16 0;");
         lblPesan.setMaxWidth(420);
         lblPesan.setWrapText(true);
 
@@ -389,7 +389,7 @@ public class ChatController {
 
         for (String label : QUICK_REPLIES) {
             Button btn = new Button(label);
-            btn.setStyle("-fx-background-color: #FFFCF8; -fx-text-fill: #C8956C; -fx-border-color: #C8956C; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 6 15; -fx-font-size: 13px; -fx-cursor: hand;");
+            btn.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #D97706; -fx-border-color: #D97706; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 6 15; -fx-font-size: 13px; -fx-cursor: hand;");
             btn.setOnAction(e -> {
                 txtInput.setText(label);
                 handleKirimPesan();
