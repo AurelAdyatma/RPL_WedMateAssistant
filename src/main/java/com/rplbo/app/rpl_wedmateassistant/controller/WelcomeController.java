@@ -40,12 +40,28 @@ public class WelcomeController {
     }
 
     private void updateSelection() {
+        // Clear box borders, set background transparent
+        cardUser.setStyle("-fx-background-color: transparent;");
+        cardAdmin.setStyle("-fx-background-color: transparent;");
+
         if (isAdminSelected) {
-            cardAdmin.setStyle("-fx-background-color: #F4F9FD; -fx-background-radius: 12; -fx-border-color: #D97706; -fx-border-radius: 12; -fx-border-width: 3;");
-            cardUser.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1;");
+            // Admin selected
+            cardAdmin.setOpacity(1.0);
+            cardAdmin.setScaleX(1.05);
+            cardAdmin.setScaleY(1.05);
+            
+            cardUser.setOpacity(0.5);
+            cardUser.setScaleX(0.95);
+            cardUser.setScaleY(0.95);
         } else {
-            cardUser.setStyle("-fx-background-color: #F4F9FD; -fx-background-radius: 12; -fx-border-color: #3B82F6; -fx-border-radius: 12; -fx-border-width: 3;");
-            cardAdmin.setStyle("-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1;");
+            // User selected
+            cardUser.setOpacity(1.0);
+            cardUser.setScaleX(1.05);
+            cardUser.setScaleY(1.05);
+            
+            cardAdmin.setOpacity(0.5);
+            cardAdmin.setScaleX(0.95);
+            cardAdmin.setScaleY(0.95);
         }
     }
 

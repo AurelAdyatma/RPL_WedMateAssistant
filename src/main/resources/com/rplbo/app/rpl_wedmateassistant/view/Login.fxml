@@ -11,46 +11,46 @@
 <StackPane xmlns="http://javafx.com/javafx/21"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.LoginController"
-           style="-fx-background-color: #F8FAFC;">
+           style="-fx-background-color: #FDF8F3;">
 
     <children>
         <VBox alignment="CENTER"
               spacing="20"
               maxWidth="400"
-              style="-fx-background-color: white;
+              style="-fx-background-color: #FFFCF8;
                      -fx-background-radius: 15;
                      -fx-padding: 40;
-                     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 15, 0, 0, 5);">
+                     -fx-effect: dropshadow(three-pass-box, rgba(139,94,60,0.10), 15, 0, 0, 5);">
 
             <VBox alignment="CENTER" spacing="8">
                 <Label text="WedMate"
-                       style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #D97706;" />
+                       style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #C8956C;" />
                 <Label text="Admin Login"
-                       style="-fx-font-size: 14px; -fx-text-fill: #64748B;" />
+                       style="-fx-font-size: 14px; -fx-text-fill: #9C8575;" />
             </VBox>
 
             <VBox spacing="15" style="-fx-padding: 10 0 0 0;">
                 <VBox spacing="5">
-                    <Label text="Username" style="-fx-font-size: 13px; -fx-text-fill: #1E293B; -fx-font-weight: bold;"/>
+                    <Label text="Username" style="-fx-font-size: 13px; -fx-text-fill: #3C2415; -fx-font-weight: bold;"/>
                     <TextField fx:id="txtUsername"
                                promptText="Masukkan username"
                                prefHeight="45"
-                               style="-fx-background-color: #F1F5F9;
+                               style="-fx-background-color: #FFF5EC;
                                       -fx-background-radius: 8;
                                       -fx-padding: 0 15;
-                                      -fx-border-color: #E2E8F0;
+                                      -fx-border-color: #E8D5C4;
                                       -fx-border-radius: 8;" />
                 </VBox>
 
                 <VBox spacing="5">
-                    <Label text="Password" style="-fx-font-size: 13px; -fx-text-fill: #1E293B; -fx-font-weight: bold;"/>
+                    <Label text="Password" style="-fx-font-size: 13px; -fx-text-fill: #3C2415; -fx-font-weight: bold;"/>
                     <PasswordField fx:id="txtPassword"
                                    promptText="Masukkan password"
                                    prefHeight="45"
-                                   style="-fx-background-color: #F1F5F9;
+                                   style="-fx-background-color: #FFF5EC;
                                           -fx-background-radius: 8;
                                           -fx-padding: 0 15;
-                                          -fx-border-color: #E2E8F0;
+                                          -fx-border-color: #E8D5C4;
                                           -fx-border-radius: 8;" />
                 </VBox>
             </VBox>
@@ -68,7 +68,7 @@
                         onAction="#handleLogin"
                         maxWidth="Infinity"
                         prefHeight="45"
-                        style="-fx-background-color: #1E293B;
+                        style="-fx-background-color: #8B5E3C;
                                -fx-text-fill: white;
                                -fx-font-weight: bold;
                                -fx-background-radius: 8;
@@ -80,7 +80,7 @@
                         maxWidth="Infinity"
                         prefHeight="45"
                         style="-fx-background-color: transparent;
-                               -fx-text-fill: #64748B;
+                               -fx-text-fill: #9C8575;
                                -fx-font-weight: bold;
                                -fx-background-radius: 8;
                                -fx-cursor: hand;" />
