@@ -50,6 +50,13 @@
             <Label text="Kunjungi WedMate" style="-fx-text-fill: #C3795B; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 16 0 0 0;"/>
         </VBox>
         <Region VBox.vgrow="ALWAYS"/>
+        <Button fx:id="btnClearChat"
+                text="Clear Chat"
+                onAction="#handleClearChat"
+                maxWidth="Infinity"
+                style="-fx-background-color: #FEF2F2; -fx-text-fill: #B91C1C; -fx-border-color: #FCA5A5; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 8 15; -fx-font-size: 13px; -fx-font-weight: bold; -fx-cursor: hand;"/>
+
+        <Region minHeight="10" maxHeight="10"/>
         <Button fx:id="btnKembali" text="&lt; Kembali ke Menu" onAction="#handleKembali" maxWidth="Infinity" style="-fx-background-color: #F1F5F9; -fx-text-fill: #475569; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 8; -fx-cursor: hand;"/>
     </VBox>
 
@@ -115,10 +122,7 @@
                             text="Kirim"
                             onAction="#handleKirimPesan"
                             style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;"/>
-                    <Button fx:id="btnClearChat"
-                            text="Clear Chat"
-                            onAction="#handleClearChat"
-                            style="-fx-background-color: #EF4444; -fx-text-fill: white; -fx-background-radius: 25; -fx-padding: 10 20; -fx-font-weight: bold; -fx-font-size: 14px; -fx-cursor: hand;"/>
+
                 </HBox>
             </VBox>
         </bottom>
