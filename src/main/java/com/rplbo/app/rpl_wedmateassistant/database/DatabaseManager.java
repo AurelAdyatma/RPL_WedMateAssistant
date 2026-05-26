@@ -1,8 +1,12 @@
 package com.rplbo.app.rpl_wedmateassistant.database;
 
+// Import kelas Connection untuk mengelola koneksi
 import java.sql.Connection;
+// Import DriverManager untuk membuka koneksi baru via driver
 import java.sql.DriverManager;
+// Import SQLException untuk penanganan eksepsi basis data
 import java.sql.SQLException;
+// Import Statement untuk eksekusi perintah DDL
 import java.sql.Statement;
 
 /**
@@ -28,7 +32,10 @@ public class DatabaseManager {
 
     // ── Singleton (double-checked locking, thread-safe) ──────────────────────
 
+    /** Instance DatabaseManager singleton. Dideklarasikan volatile agar aman dari race condition thread. */
     private static volatile DatabaseManager instance;
+    
+    /** Objek koneksi yang terus dipelihara (reused) */
     private Connection connection;
 
     /** Konstruktor privat — akses hanya melalui {@link #getInstance()}. */
@@ -36,13 +43,16 @@ public class DatabaseManager {
 
     /**
      * Mengembalikan instance tunggal {@code DatabaseManager}.
-     * Aman dipanggil dari beberapa thread secara bersamaan.
+     * Aman dipanggil dari beberapa thread secara bersamaan karena menggunakan sinkronisasi.
      *
      * @return instance {@code DatabaseManager}
      */
     public static DatabaseManager getInstance() {
+        // Cek pertama tanpa sinkronisasi untuk performa
         if (instance == null) {
+            // Blok sinkronisasi untuk thread-safety
             synchronized (DatabaseManager.class) {
+                // Cek kedua untuk memastikan instance belum dibuat oleh thread lain
                 if (instance == null) {
                     instance = new DatabaseManager();
                 }
@@ -61,9 +71,10 @@ public class DatabaseManager {
      * @throws SQLException jika driver tidak ditemukan atau file DB tidak bisa dibuat
      */
     public Connection getConnection() throws SQLException {
+        // Buat koneksi baru jika objek koneksi masih null atau telah ditutup
         if (connection == null || connection.isClosed()) {
             connection = DriverManager.getConnection(DB_URL);
-            // Aktifkan foreign key support di SQLite
+            // Aktifkan foreign key support di SQLite karena SQLite defaultnya non-aktif
             connection.createStatement().execute("PRAGMA foreign_keys = ON;");
         }
         return connection;
@@ -76,13 +87,16 @@ public class DatabaseManager {
     public void closeConnection() {
         if (connection != null) {
             try {
+                // Tutup koneksi jika belum tertutup
                 if (!connection.isClosed()) {
                     connection.close();
                     System.out.println("[DatabaseManager] Koneksi SQLite ditutup.");
                 }
             } catch (SQLException e) {
+                // Cetak pesan error jika gagal menutup koneksi
                 System.err.println("[DatabaseManager] Gagal menutup koneksi: " + e.getMessage());
             } finally {
+                // Set referensi koneksi ke null untuk garbage collection
                 connection = null;
             }
         }
@@ -91,7 +105,7 @@ public class DatabaseManager {
     /**
      * Memeriksa apakah koneksi database saat ini aktif.
      *
-     * @return {@code true} jika koneksi terbuka dan valid
+     * @return {@code true} jika koneksi terbuka dan valid, {@code false} jika tidak
      */
     public boolean isConnected() {
         try {
@@ -119,7 +133,7 @@ public class DatabaseManager {
      * {@code CREATE TABLE IF NOT EXISTS}.</p>
      */
     public void initDB() {
-        // DDL untuk setiap tabel
+        // Array yang berisi perintah-perintah DDL untuk pembuatan setiap tabel
         String[] ddlStatements = {
 
             // ── 1. Tabel users ──────────────────────────────────────────────
@@ -187,43 +201,51 @@ public class DatabaseManager {
             """
         };
 
+        // Coba inisialisasi tabel dalam satu transaksi agar tidak terjadi data parsial jika gagal
         try (Statement stmt = getConnection().createStatement()) {
-            // Jalankan semua DDL dalam satu transaksi agar atomik
+            // Nonaktifkan auto-commit agar DDL dieksekusi sebagai satu transaksi atomik
             getConnection().setAutoCommit(false);
 
+            // Eksekusi tiap statement DDL
             for (String ddl : ddlStatements) {
                 stmt.execute(ddl);
             }
             
-            // Migrasi untuk database yang sudah ada
+            // Migrasi kolom untuk database yang sudah ada namun dari versi sebelumnya
             try {
+                // Menambahkan kolom gender
                 stmt.execute("ALTER TABLE pakaian_wedding ADD COLUMN gender TEXT NOT NULL DEFAULT 'Unisex'");
             } catch (SQLException ignore) {
-                // Kolom sudah ada
+                // Eksepsi diabaikan karena berarti kolom sudah ada
             }
             try {
+                // Menambahkan kolom deskripsi
                 stmt.execute("ALTER TABLE pakaian_wedding ADD COLUMN deskripsi TEXT");
             } catch (SQLException ignore) {
-                // Kolom sudah ada
+                // Eksepsi diabaikan karena berarti kolom sudah ada
             }
             try {
+                // Menambahkan kolom foto_data untuk menyimpan gambar
                 stmt.execute("ALTER TABLE pakaian_wedding ADD COLUMN foto_data BLOB");
             } catch (SQLException ignore) {
-                // Kolom sudah ada
+                // Eksepsi diabaikan karena berarti kolom sudah ada
             }
 
+            // Commit perubahan skema ke file database
             getConnection().commit();
+            // Kembalikan ke mode auto-commit untuk operasional biasa
             getConnection().setAutoCommit(true);
 
             System.out.println("[DatabaseManager] Database berhasil diinisialisasi. File: wedmate.db");
 
         } catch (SQLException e) {
+            // Tampilkan pesan error jika gagal membuat tabel
             System.err.println("[DatabaseManager] Gagal menginisialisasi database: " + e.getMessage());
-            // Rollback jika ada yang gagal di tengah jalan
+            // Rollback (batalkan) seluruh perubahan DDL yang ada dalam transaksi ini
             try {
                 if (connection != null) {
                     connection.rollback();
-                    connection.setAutoCommit(true);
+                    connection.setAutoCommit(true); // reset auto-commit
                 }
             } catch (SQLException rollbackEx) {
                 System.err.println("[DatabaseManager] Rollback gagal: " + rollbackEx.getMessage());

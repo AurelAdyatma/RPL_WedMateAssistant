@@ -1,9 +1,14 @@
 package com.rplbo.app.rpl_wedmateassistant.database;
 
+// Import kelas Connection untuk mengelola koneksi database
 import java.sql.Connection;
+// Import kelas PreparedStatement untuk eksekusi query SQL terkompilasi
 import java.sql.PreparedStatement;
+// Import kelas ResultSet untuk menampung hasil query
 import java.sql.ResultSet;
+// Import kelas SQLException untuk penanganan exception SQL
 import java.sql.SQLException;
+// Import kelas Statement untuk eksekusi query SQL sederhana
 import java.sql.Statement;
 
 /**
@@ -14,8 +19,12 @@ import java.sql.Statement;
  */
 public class DataSeeder {
 
+    /** Referensi ke instance DatabaseManager untuk mendapatkan koneksi database */
     private final DatabaseManager dbManager;
 
+    /**
+     * Konstruktor DataSeeder - menginisialisasi DatabaseManager.
+     */
     public DataSeeder() {
         this.dbManager = DatabaseManager.getInstance();
     }
@@ -23,9 +32,16 @@ public class DataSeeder {
     /** Menjalankan semua seed data jika tabel masih kosong. */
     public void seed() {
         try {
+            // Dapatkan koneksi dari dbManager
             Connection conn = dbManager.getConnection();
+            
+            // Cek apakah tabel pakaian_wedding kosong, jika ya isi data pakaian
             if (isEmpty(conn, "pakaian_wedding")) seedPakaian(conn);
+            
+            // Cek apakah tabel paket_sewa kosong, jika ya isi data paket
             if (isEmpty(conn, "paket_sewa"))      seedPaket(conn);
+            
+            // Cek apakah tabel knowledge_base kosong, jika ya isi data knowledge base
             if (isEmpty(conn, "knowledge_base"))  seedKnowledgeBase(conn);
 
             // Bersihkan entri HARGA_PAKET yang duplikat/hardcoded dari knowledge_base jika ada
@@ -37,24 +53,45 @@ public class DataSeeder {
                 }
             }
 
+            // Tampilkan log sukses
             System.out.println("[DataSeeder] Seeding selesai.");
         } catch (SQLException e) {
+            // Tangkap dan log kesalahan jika proses seeding gagal
             System.err.println("[DataSeeder] Gagal seed: " + e.getMessage());
         }
     }
 
+    /**
+     * Memeriksa apakah suatu tabel kosong (tidak memiliki baris data).
+     *
+     * @param conn objek koneksi database
+     * @param tableName nama tabel yang diperiksa
+     * @return true jika kosong, false jika sudah ada data
+     * @throws SQLException jika gagal mengeksekusi query COUNT
+     */
     private boolean isEmpty(Connection conn, String tableName) throws SQLException {
+        // Query untuk menghitung jumlah baris dalam tabel
         String sql = "SELECT COUNT(*) FROM " + tableName;
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+            // Mengembalikan true jika hasil count adalah 0
             return rs.next() && rs.getInt(1) == 0;
         }
     }
 
     // ── Pakaian Wedding ───────────────────────────────────────────────────────
 
+    /**
+     * Mengisi data (seeding) tabel pakaian_wedding dengan kumpulan data awal.
+     * Menggunakan batch insert agar efisien.
+     *
+     * @param conn koneksi database aktif
+     * @throws SQLException jika terjadi kegagalan SQL saat insert data
+     */
     private void seedPakaian(Connection conn) throws SQLException {
+        // Query INSERT untuk pakaian
         String sql = "INSERT INTO pakaian_wedding (nama, jenis, ukuran, harga_sewa, gender, tersedia, deskripsi) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // Data array dua dimensi yang berisi data pakaian
         Object[][] data = {
             // Busana Modern
             {"Gaun Ball Gown Ivory",          "Modern",       "S,M,L",    1_500_000, "Wanita", 1, "Gaun pengantin bergaya ball gown dengan rok mengembang megah, bahan satin dan tulle berlapis. Detail payet halus di bagian bodice. Cocok untuk pernikahan mewah di ballroom."},
@@ -99,26 +136,36 @@ public class DataSeeder {
             {"Blazer Elegan Pria Abu",         "Pesta",        "M,L,XL",   500_000,   "Pria",   1, "Blazer semi-formal abu-abu dengan potongan modern slim-fit. Cocok untuk acara dinner party, wisuda, atau resepsi pernikahan."},
         };
 
+        // Eksekusi insert dengan batch untuk performa lebih baik
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             for (Object[] row : data) {
-                stmt.setString(1, (String)  row[0]);
-                stmt.setString(2, (String)  row[1]);
-                stmt.setString(3, (String)  row[2]);
-                stmt.setDouble(4, ((Number) row[3]).doubleValue());
-                stmt.setString(5, (String)  row[4]);
-                stmt.setInt(6,    ((Number) row[5]).intValue());
-                stmt.setString(7, (String)  row[6]);
-                stmt.addBatch();
+                stmt.setString(1, (String)  row[0]);                        // nama
+                stmt.setString(2, (String)  row[1]);                        // jenis
+                stmt.setString(3, (String)  row[2]);                        // ukuran
+                stmt.setDouble(4, ((Number) row[3]).doubleValue());         // harga_sewa
+                stmt.setString(5, (String)  row[4]);                        // gender
+                stmt.setInt(6,    ((Number) row[5]).intValue());            // tersedia
+                stmt.setString(7, (String)  row[6]);                        // deskripsi
+                stmt.addBatch();                                            // Tambahkan ke antrian batch
             }
-            stmt.executeBatch();
+            stmt.executeBatch(); // Jalankan batch insert sekaligus
         }
         System.out.println("[DataSeeder] Pakaian wedding berhasil di-seed (" + data.length + " item).");
     }
 
     // ── Paket Sewa ────────────────────────────────────────────────────────────
 
+    /**
+     * Mengisi data tabel paket_sewa dengan paket pernikahan default.
+     * Menggunakan batch insert agar lebih efisien.
+     *
+     * @param conn koneksi database aktif
+     * @throws SQLException jika gagal menjalankan SQL
+     */
     private void seedPaket(Connection conn) throws SQLException {
+        // Query INSERT untuk paket sewa
         String sql = "INSERT INTO paket_sewa (nama_paket, deskripsi, harga, fasilitas, tersedia) VALUES (?, ?, ?, ?, ?)";
+        // Data paket default dalam bentuk array 2D
         Object[][] data = {
             {
                 "Paket Basic",
@@ -157,24 +204,34 @@ public class DataSeeder {
             },
         };
 
+        // Lakukan eksekusi insert secara batch
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             for (Object[] row : data) {
-                stmt.setString(1, (String)  row[0]);
-                stmt.setString(2, (String)  row[1]);
-                stmt.setDouble(3, ((Number) row[2]).doubleValue());
-                stmt.setString(4, (String)  row[3]);
-                stmt.setInt(5,    ((Number) row[4]).intValue());
-                stmt.addBatch();
+                stmt.setString(1, (String)  row[0]);                        // nama_paket
+                stmt.setString(2, (String)  row[1]);                        // deskripsi
+                stmt.setDouble(3, ((Number) row[2]).doubleValue());         // harga
+                stmt.setString(4, (String)  row[3]);                        // fasilitas
+                stmt.setInt(5,    ((Number) row[4]).intValue());            // tersedia
+                stmt.addBatch();                                            // Tambahkan ke antrian
             }
-            stmt.executeBatch();
+            stmt.executeBatch(); // Eksekusi sekaligus
         }
         System.out.println("[DataSeeder] Paket sewa berhasil di-seed (" + data.length + " paket).");
     }
 
     // ── Knowledge Base ────────────────────────────────────────────────────────
 
+    /**
+     * Mengisi tabel knowledge_base dengan respons default chatbot.
+     * Menggunakan batch insert agar efisien.
+     *
+     * @param conn koneksi database aktif
+     * @throws SQLException jika terjadi error selama eksekusi SQL
+     */
     private void seedKnowledgeBase(Connection conn) throws SQLException {
+        // Query INSERT untuk knowledge base chatbot
         String sql = "INSERT INTO knowledge_base (pertanyaan, jawaban, kategori, aktif) VALUES (?, ?, ?, ?)";
+        // Kumpulan respon chatbot untuk tiap kategori 
         Object[][] data = {
 
             // GREETING
@@ -274,15 +331,16 @@ public class DataSeeder {
             },
         };
 
+        // Jalankan eksekusi batch
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             for (Object[] row : data) {
-                stmt.setString(1, (String)  row[0]);
-                stmt.setString(2, (String)  row[1]);
-                stmt.setString(3, (String)  row[2]);
-                stmt.setInt(4,    ((Number) row[3]).intValue());
-                stmt.addBatch();
+                stmt.setString(1, (String)  row[0]);                        // pertanyaan regex
+                stmt.setString(2, (String)  row[1]);                        // jawaban bot
+                stmt.setString(3, (String)  row[2]);                        // kategori
+                stmt.setInt(4,    ((Number) row[3]).intValue());            // aktif (0 atau 1)
+                stmt.addBatch();                                            // tambah ke antrian batch
             }
-            stmt.executeBatch();
+            stmt.executeBatch(); // eksekusi semua insert
         }
         System.out.println("[DataSeeder] Knowledge base berhasil di-seed (" + data.length + " entri).");
     }

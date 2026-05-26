@@ -1,53 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Mengimpor komponen-komponen UI JavaFX yang dibutuhkan -->
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.Cursor?>
 
+<!-- Root container VBox yang akan memusatkan elemen dan di-binding ke WelcomeController -->
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.WelcomeController"
       alignment="CENTER" spacing="50"
       style="-fx-background-color: #FFFFFF; -fx-padding: 50;">
 
-    <!-- Header -->
+    <!-- Header: Menampilkan judul selamat datang dan subjudul aplikasi -->
     <VBox alignment="CENTER" spacing="8">
         <Label text="Welcome to WedMate" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: #111820;"/>
         <Label text="Your Assistant for Wedding Dress" style="-fx-font-size: 16px; -fx-text-fill: #9CA3AF;"/>
     </VBox>
 
-    <!-- Cards -->
+    <!-- Cards: Container HBox untuk menampilkan dua kartu pilihan (User dan Admin) -->
     <HBox alignment="CENTER" spacing="30">
         
-        <!-- Card User -->
+        <!-- Card User: Kartu pilihan login untuk pengguna biasa / chatbot -->
         <VBox fx:id="cardUser" alignment="CENTER" spacing="20" prefWidth="350" prefHeight="280"
               style="-fx-background-color: #F4F9FD; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1;"
               onMouseClicked="#handleUserClick">
+            <!-- Menambahkan efek kursor pointer saat mouse mengarah (hover) pada kartu -->
             <cursor>
                 <Cursor fx:constant="HAND"/>
             </cursor>
+            <!-- Ikon profil kartu User (huruf U di tengah lingkaran hitam) -->
             <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
                 <StackPane style="-fx-background-color: #1E293B; -fx-background-radius: 60; -fx-min-width: 100; -fx-min-height: 100; -fx-max-width: 100; -fx-max-height: 100;" alignment="CENTER">
                     <Label text="U" style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: white;"/>
                 </StackPane>
             </VBox>
+            <!-- Label informasi peran untuk User -->
             <HBox alignment="CENTER" style="-fx-padding: 0 0 25 0;">
                 <Label text="Login sebagai " style="-fx-font-size: 16px; -fx-text-fill: #4B5563;"/>
                 <Label text="User" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #111820;"/>
             </HBox>
         </VBox>
 
-        <!-- Card Admin -->
+        <!-- Card Admin: Kartu pilihan login untuk akses dasbor admin -->
         <VBox fx:id="cardAdmin" alignment="CENTER" spacing="20" prefWidth="350" prefHeight="280"
               style="-fx-background-color: #FFFFFF; -fx-background-radius: 12; -fx-border-color: #E2E8F0; -fx-border-radius: 12; -fx-border-width: 1;"
               onMouseClicked="#handleAdminClick">
+            <!-- Menambahkan efek kursor pointer saat mouse mengarah (hover) pada kartu -->
             <cursor>
                 <Cursor fx:constant="HAND"/>
             </cursor>
+            <!-- Ikon profil kartu Admin (huruf A di tengah lingkaran oranye) -->
             <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
                 <StackPane style="-fx-background-color: #D97706; -fx-background-radius: 60; -fx-min-width: 100; -fx-min-height: 100; -fx-max-width: 100; -fx-max-height: 100;" alignment="CENTER">
                     <Label text="A" style="-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: white;"/>
                 </StackPane>
             </VBox>
+            <!-- Label informasi peran untuk Admin -->
             <HBox alignment="CENTER" style="-fx-padding: 0 0 25 0;">
                 <Label text="Login sebagai " style="-fx-font-size: 16px; -fx-text-fill: #4B5563;"/>
                 <Label text="Admin" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #111820;"/>
@@ -56,6 +64,7 @@
 
     </HBox>
 
+    <!-- Tombol utama untuk melanjutkan ke halaman berikutnya (Chat atau Login Admin) berdasarkan pilihan -->
     <Button text="Lanjutkan" onAction="#handleLanjutkan" 
             style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold; -fx-padding: 12 40; -fx-background-radius: 25; -fx-cursor: hand;" />
 

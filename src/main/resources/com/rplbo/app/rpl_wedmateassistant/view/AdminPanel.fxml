@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- Deklarasi komponen UI dan Layout JavaFX -->
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
@@ -8,36 +9,43 @@
     AdminPanel.fxml — Panel manajemen data Admin WedMate Assistant.
     Controller: com.rplbo.app.rpl_wedmateassistant.controller.AdminController
 -->
+<!-- BorderPane menjadi akar layout utama karena mendukung penempatan area seperti Left, Center, dan Top -->
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.rplbo.app.rpl_wedmateassistant.controller.AdminController"
             style="-fx-background-color: #F1F5F9;">
 
     <!-- ═══════════════════════════════════════════════════ -->
-    <!-- KIRI: Sidebar                                       -->
+    <!-- KIRI: Sidebar (Area Navigasi Tab)                   -->
     <!-- ═══════════════════════════════════════════════════ -->
     <left>
+        <!-- VBox untuk menyusun vertikal menu-menu navigasi sisi kiri (sidebar) admin -->
         <VBox spacing="0"
               style="-fx-background-color: #1E293B; -fx-min-width: 220; -fx-max-width: 220;">
 
-            <!-- Logo / Brand -->
+            <!-- Logo / Brand: Menampilkan nama aplikasi di pojok kiri atas panel -->
             <VBox alignment="CENTER" style="-fx-padding: 30 20 20 20; -fx-background-color: #0F172A;">
                 <Label text="WedMate" style="-fx-text-fill: #D97706; -fx-font-size: 22px; -fx-font-weight: bold;"/>
                 <Label text="Admin Panel" style="-fx-text-fill: #94A3B8; -fx-font-size: 12px;"/>
             </VBox>
 
-            <!-- Menu Items -->
+            <!-- Menu Items: Kumpulan tombol tab untuk berpindah tabel data -->
             <VBox spacing="4" style="-fx-padding: 20 12;">
+                <!-- Tombol navigasi ke manajemen Knowledge Base -->
                 <Button fx:id="btnSectionKnowledge"
                         text="Knowledge Base"
                         maxWidth="9999"
                         onAction="#handleSeksiKnowledge"
                         style="-fx-background-color: #334155; -fx-text-fill: white; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 12 16; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                
+                <!-- Tombol navigasi ke manajemen Pakaian Wedding -->
                 <Button fx:id="btnSectionPakaian"
                         text="Pakaian Wedding"
                         maxWidth="9999"
                         onAction="#handleSeksiPakaian"
                         style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 12 16; -fx-background-radius: 8; -fx-cursor: hand;"/>
+                
+                <!-- Tombol navigasi ke manajemen Paket Sewa -->
                 <Button fx:id="btnSectionPaket"
                         text="Paket Sewa"
                         maxWidth="9999"
@@ -45,10 +53,10 @@
                         style="-fx-background-color: transparent; -fx-text-fill: #94A3B8; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT; -fx-padding: 12 16; -fx-background-radius: 8; -fx-cursor: hand;"/>
             </VBox>
 
-            <!-- Spacer -->
+            <!-- Spacer kosong (Region) agar tombol Logout selalu ada di bawah layar (align bottom) -->
             <Region VBox.vgrow="ALWAYS"/>
 
-            <!-- Logout -->
+            <!-- Logout: Tombol yang mengeluarkan sesi admin dan balik ke menu utama -->
             <VBox style="-fx-padding: 12;">
                 <Button fx:id="btnLogout"
                         text="Logout"
@@ -60,31 +68,37 @@
     </left>
 
     <!-- ═══════════════════════════════════════════════════ -->
-    <!-- KANAN: Konten Utama                                 -->
+    <!-- KANAN: Konten Utama (Area Table Data & Tools)       -->
     <!-- ═══════════════════════════════════════════════════ -->
     <center>
         <VBox spacing="16" style="-fx-padding: 24;">
 
-            <!-- Header Bar -->
+            <!-- Header Bar: Kotak pencarian, label seksi, dan tombol CRUD -->
             <HBox alignment="CENTER_LEFT" spacing="16"
                   style="-fx-background-color: white; -fx-padding: 16 20; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);">
+                <!-- Judul label penanda panel bagian mana yang terbuka saat ini -->
                 <Label fx:id="lblSection"
                        text="Knowledge Base (Chatbot)"
                        style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;"/>
                 <Region HBox.hgrow="ALWAYS"/>
+                <!-- Kolom pencarian text field interaktif -->
                 <TextField fx:id="txtCari"
                            promptText="Cari data"
                            prefWidth="200"
                            style="-fx-background-color: #F8FAFC; -fx-border-color: #E2E8F0; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 8 12; -fx-font-size: 13px;"/>
+                <!-- Tombol aksi Tambah entri baru -->
                 <Button fx:id="btnTambah" text="+ Tambah" onAction="#handleTambah"
                         style="-fx-background-color: #16A34A; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;"/>
+                <!-- Tombol aksi Edit baris terpilih -->
                 <Button fx:id="btnEdit"   text="Edit"     onAction="#handleEdit"
                         style="-fx-background-color: #D97706; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;"/>
+                <!-- Tombol aksi Hapus baris terpilih -->
                 <Button fx:id="btnHapus"  text="Hapus"    onAction="#handleHapus"
                         style="-fx-background-color: #DC2626; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 6; -fx-cursor: hand;"/>
             </HBox>
 
             <!-- ── Seksi: Knowledge Base ───────────────── -->
+            <!-- Panel Tabel (TableView) untuk menampilkan kumpulan data FAQ jawaban bot (ChatbotEngine) -->
             <VBox fx:id="sectionKnowledge" VBox.vgrow="ALWAYS">
                 <TableView fx:id="tableKnowledge"
                            VBox.vgrow="ALWAYS"
@@ -92,6 +106,8 @@
             </VBox>
 
             <!-- ── Seksi: Pakaian Wedding ─────────────── -->
+            <!-- Panel Tabel (TableView) untuk menampilkan koleksi stok katalog Gaun/Kebaya/dll -->
+            <!-- Tag 'visible=false' agar tab ini disembunyikan sampai diklik user -->
             <VBox fx:id="sectionPakaian" VBox.vgrow="ALWAYS" visible="false" managed="false">
                 <TableView fx:id="tablePakaian"
                            VBox.vgrow="ALWAYS"
@@ -99,6 +115,8 @@
             </VBox>
 
             <!-- ── Seksi: Paket Sewa ──────────────────── -->
+            <!-- Panel Tabel (TableView) untuk menampilkan list bundling paket pernikahan -->
+            <!-- Tag 'visible=false' agar tab ini disembunyikan sampai diklik user -->
             <VBox fx:id="sectionPaket" VBox.vgrow="ALWAYS" visible="false" managed="false">
                 <TableView fx:id="tablePaket"
                            VBox.vgrow="ALWAYS"
