@@ -28,6 +28,13 @@ public class Pesan {
     /** Daftar data gambar (BLOB) yang mungkin dilampirkan pada pesan (contoh: foto busana) */
     private List<byte[]>  imageDataList = new ArrayList<>();
 
+    /**
+     * Daftar pasangan detail-item (teks + gambar opsional) untuk mode detail busana.
+     * Bila tidak kosong, controller akan merender setiap item secara berurutan
+     * sehingga setiap foto tampil tepat di bawah teks detail busana yang bersesuaian.
+     */
+    private List<DetailItem> detailItems = new ArrayList<>();
+
     // ── Constructors ──────────────────────────────────────────────────────────
 
     /**
@@ -88,6 +95,15 @@ public class Pesan {
     public void          addImageData(byte[] data)               { if (data != null && data.length > 0) imageDataList.add(data); }
     /** Mengecek apakah pesan ini memiliki gambar lampiran */
     public boolean       hasImages()                             { return imageDataList != null && !imageDataList.isEmpty(); }
+
+    /** Mengambil list pasangan detail-item (teks + gambar bersesuaian) */
+    public List<DetailItem> getDetailItems()                          { return detailItems; }
+    /** Mengatur list pasangan detail-item */
+    public void             setDetailItems(List<DetailItem> items)    { this.detailItems = items != null ? items : new ArrayList<>(); }
+    /** Menambahkan satu pasangan detail-item ke dalam list */
+    public void             addDetailItem(DetailItem item)            { if (item != null) detailItems.add(item); }
+    /** Mengecek apakah pesan ini memiliki detail-item berstruktur */
+    public boolean          hasDetailItems()                          { return detailItems != null && !detailItems.isEmpty(); }
 
     /**
      * Menghasilkan representasi string pesan untuk kebutuhan debugging.

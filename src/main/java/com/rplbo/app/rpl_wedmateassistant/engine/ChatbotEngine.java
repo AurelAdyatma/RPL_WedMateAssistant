@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.rplbo.app.rpl_wedmateassistant.engine.RegexMatcher.Kategori;
+import com.rplbo.app.rpl_wedmateassistant.model.DetailItem;
 import com.rplbo.app.rpl_wedmateassistant.model.EntriKnowledge;
 import com.rplbo.app.rpl_wedmateassistant.model.PakaianWedding;
 import com.rplbo.app.rpl_wedmateassistant.model.PaketSewa;
@@ -93,6 +94,7 @@ public class ChatbotEngine {
         // ── 4. Coba generate respons dari pakaian DB jika kategori busana atau gender
         String responsPakaian = null;
         List<byte[]> attachedImages = new ArrayList<>();
+        List<DetailItem> detailItems = new ArrayList<>();
 
         String warnaDicari = ekstrakWarna(inputPengguna);
         String ukuranDicari = ekstrakUkuran(inputPengguna);
@@ -107,7 +109,7 @@ public class ChatbotEngine {
         boolean isDetailRequest = inputPengguna.toLowerCase().matches(".*\\b(detail|contoh|foto|gambar|spesifikasi|wujud|tampil|penampakan)\\b.*");
 
         if (isDetailRequest) {
-            responsPakaian = generateDetailPakaian(inputPengguna, kategori, attachedImages);
+            responsPakaian = generateDetailPakaian(inputPengguna, kategori, attachedImages, detailItems);
         } else if (kategori == Kategori.REKOMENDASI_UKURAN) {
             responsPakaian = generateRekomendasiUkuran(inputPengguna);
         } else if (kategori == Kategori.HARGA_PAKET && mengandungBudget(inputPengguna)) {
@@ -146,6 +148,9 @@ public class ChatbotEngine {
 
         Pesan pesanBot = buatPesanBot(teksRespons, sesi);
         pesanBot.setImageDataList(attachedImages);
+        if (!detailItems.isEmpty()) {
+            pesanBot.setDetailItems(detailItems);
+        }
         return pesanBot;
     }
 
@@ -1092,7 +1097,7 @@ private String generateResponsPencarianKombinasi(String input, String warna, Str
         return sb.toString();
     }
 
-    private String generateDetailPakaian(String input, Kategori kategori, List<byte[]> imageDataList) {
+    private String generateDetailPakaian(String input, Kategori kategori, List<byte[]> imageDataList, List<DetailItem> detailItems) {
         List<PakaianWedding> cocok = new ArrayList<>();
 
         // ── PRIORITAS 1: Cari berdasarkan nama spesifik dari input pengguna ──
@@ -1153,9 +1158,17 @@ private String generateResponsPencarianKombinasi(String input, String warna, Str
         int maxItems = 4;
         List<PakaianWedding> hasilLimit = cocok.size() > maxItems ? cocok.subList(0, maxItems) : cocok;
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("[ Detail & Foto Busana ]\n\n");
+        // Header bubble (tanpa detail per-item — detail diisi di detailItems)
+        StringBuilder headerSb = new StringBuilder();
+        headerSb.append("[ Detail & Foto Busana ]\n");
+        if (cocok.size() > maxItems) {
+            headerSb.append("\n... dan ").append(cocok.size() - maxItems)
+                    .append(" busana lainnya. Ketik nama busana yang lebih spesifik untuk melihat detail lainnya.");
+        }
+
         for (PakaianWedding p : hasilLimit) {
+            // Susun teks detail satu busana
+            StringBuilder sb = new StringBuilder();
             sb.append("• ").append(p.getNama()).append("\n");
             sb.append("  Kategori : ").append(p.getKategori()).append("\n");
             if (p.getDeskripsi() != null && !p.getDeskripsi().isEmpty()) {
@@ -1166,17 +1179,17 @@ private String generateResponsPencarianKombinasi(String input, String warna, Str
             if (!p.isTersedia()) {
                 sb.append(" (SEDANG DISEWA)");
             }
-            sb.append("\n\n");
 
+            // Buat DetailItem: pasangkan teks dengan gambar busana ini (null jika tidak ada)
+            byte[] imgData = p.hasImage() ? p.getImageData() : null;
+            detailItems.add(new DetailItem(sb.toString(), imgData));
+
+            // Tetap isi imageDataList lama agar backward-compatible
             if (p.hasImage()) {
                 imageDataList.add(p.getImageData());
             }
         }
 
-        if (cocok.size() > maxItems) {
-            sb.append("... dan ").append(cocok.size() - maxItems).append(" busana lainnya. Ketik nama busana yang lebih spesifik untuk melihat detail lainnya.");
-        }
-
-        return sb.toString().trim();
+        return headerSb.toString().trim();
     }
 }

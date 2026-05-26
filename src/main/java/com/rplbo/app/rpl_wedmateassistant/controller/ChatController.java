@@ -11,6 +11,7 @@ import com.rplbo.app.rpl_wedmateassistant.database.PaketDAO;
 import com.rplbo.app.rpl_wedmateassistant.engine.ChatbotEngine;
 import com.rplbo.app.rpl_wedmateassistant.engine.RegexMatcher.Kategori;
 // Mengimpor entitas/model data
+import com.rplbo.app.rpl_wedmateassistant.model.DetailItem;
 import com.rplbo.app.rpl_wedmateassistant.model.EntriKnowledge;
 import com.rplbo.app.rpl_wedmateassistant.model.PakaianWedding;
 import com.rplbo.app.rpl_wedmateassistant.model.PaketSewa;
@@ -314,9 +315,14 @@ public class ChatController {
         // ── Proses input via Engine ──
         Pesan pesanBot = engine.prosesPesan(inputPengguna, sesiAktif);
 
-        // Tampilkan hasil di UI berupa bubble bot, termasuk bila ada gambar (imageDataList)
+        // Tampilkan hasil di UI berupa bubble bot, termasuk bila ada gambar
         if (pesanBot != null && pesanBot.getIsiPesan() != null) {
-            tambahBubbleBot(pesanBot.getIsiPesan(), pesanBot.getWaktuKirim(), pesanBot.getImageDataList());
+            tambahBubbleBot(
+                pesanBot.getIsiPesan(),
+                pesanBot.getWaktuKirim(),
+                pesanBot.getImageDataList(),
+                pesanBot.getDetailItems()
+            );
         }
     }
 
@@ -331,7 +337,7 @@ public class ChatController {
         sesiAktif.getDaftarPesan().add(pesanSalam);
 
         // Render UI
-        tambahBubbleBot(salam, LocalDateTime.now(), null);
+        tambahBubbleBot(salam, LocalDateTime.now(), null, null);
         tampilkanQuickReply();
     }
 
@@ -349,7 +355,7 @@ public class ChatController {
     private void tambahBubbleUser(String teks, LocalDateTime waktu) {
         // Pembuatan node untuk teks chat
         Label lblPesan = new Label(teks);
-        lblPesan.setStyle("-fx-background-color: #2E3A3F; -fx-text-fill: white; -fx-padding: 12 18; -fx-background-radius: 16 16 0 16; -fx-font-size: 14px;");
+        lblPesan.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #1E293B; -fx-padding: 12 18; -fx-background-radius: 16 16 0 16; -fx-font-size: 14px; -fx-border-color: #E2E8F0; -fx-border-width: 1; -fx-border-radius: 16 16 0 16;");
         lblPesan.setMaxWidth(400); // Batas panjang bubble agar teks turun ke bawah jika lebih
         lblPesan.setWrapText(true);
 
@@ -375,58 +381,101 @@ public class ChatController {
      * Membuat dan menambahkan bubble UI pesan dari chatbot (BOT) ke dalam chatBox.
      * Posisi UI: rata kiri. Warna latar: putih/terang dengan pinggiran abu.
      *
-     * @param teks Teks jawaban yang digenerate oleh engine
-     * @param waktu Waktu pesan ini dibalas
-     * @param images List of byte array (gambar), dapat bernilai null
+     * <p>Jika {@code detailItems} tidak kosong (mode detail busana), setiap item
+     * dirender sebagai sub-blok: teks detail diikuti langsung oleh foto yang bersesuaian.
+     * Jika {@code detailItems} kosong namun {@code images} ada, semua gambar ditampilkan
+     * di bawah teks (perilaku lama).</p>
+     *
+     * @param teks        Teks jawaban yang digenerate oleh engine
+     * @param waktu       Waktu pesan ini dibalas
+     * @param images      List of byte array (gambar), dapat bernilai null
+     * @param detailItems List pasangan teks+gambar per busana, dapat bernilai null
      */
-    private void tambahBubbleBot(String teks, LocalDateTime waktu, List<byte[]> images) {
+    private void tambahBubbleBot(String teks, LocalDateTime waktu,
+                                 List<byte[]> images, List<DetailItem> detailItems) {
         // Membuat node visual Avatar bot (ikon huruf "W" berwarna oranye)
         StackPane avatar = new StackPane(new Label("W"));
         avatar.setStyle("-fx-background-color: #D97706; -fx-background-radius: 18; -fx-min-width: 36; -fx-min-height: 36;");
         ((Label) avatar.getChildren().get(0)).setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
 
-        // Membuat node visual Label untuk teks balasan dari Bot
-        Label lblPesan = new Label(teks);
-        lblPesan.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #1E293B; -fx-padding: 14 18; -fx-background-radius: 16 16 16 0; -fx-font-size: 14px; -fx-border-color: #E2E8F0; -fx-border-width: 1; -fx-border-radius: 16 16 16 0;");
-        lblPesan.setMaxWidth(420);
-        lblPesan.setWrapText(true);
-
-        // Kontainer yang bisa memuat Teks sekaligus Gambar (kalau ada)
+        // Kontainer utama konten bubble (teks header + item-item detail)
         VBox contentBox = new VBox(8);
-        contentBox.getChildren().add(lblPesan);
 
-        // Jika terdapat gambar (contoh: rekomendasi baju), tampilkan via ImageView
-        if (images != null && !images.isEmpty()) {
-            // FlowPane digunakan supaya gambar dapat membungkus (wrap/ke baris baru) jika lebih dari satu
-            FlowPane imagePane = new FlowPane();
-            imagePane.setHgap(8);
-            imagePane.setVgap(8);
-            imagePane.setMaxWidth(420);
-            
-            for (byte[] imgData : images) {
-                try {
-                    // Load raw BLOB bytes menjadi Stream input untuk Image JavaFX
-                    java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(imgData);
-                    javafx.scene.image.Image img = new javafx.scene.image.Image(bais, 280, 400, true, true);
-                    javafx.scene.image.ImageView imgView = new javafx.scene.image.ImageView(img);
-                    
-                    // Set ukuran visual agar terlihat rapi (aspect ratio)
-                    imgView.setFitWidth(280);
-                    imgView.setFitHeight(400);
-                    imgView.setPreserveRatio(true);
-                    
-                    // Memberikan efek shadow pada foto busana
-                    imgView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);");
-                    // Memberikan kursor klik tangan
-                    imgView.setCursor(javafx.scene.Cursor.HAND);
-                    
-                    imagePane.getChildren().add(imgView);
-                } catch (Exception e) {
-                    System.err.println("Gagal memuat gambar dari BLOB data");
-                }
+        // ── Mode A: detailItems tersedia → render setiap pasangan (teks + foto) berurutan ──
+        if (detailItems != null && !detailItems.isEmpty()) {
+            // Teks header (contoh: "[ Detail & Foto Busana ]")
+            if (teks != null && !teks.isBlank()) {
+                Label lblHeader = new Label(teks);
+                lblHeader.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #1E293B; -fx-padding: 14 18; -fx-background-radius: 16 16 16 0; -fx-font-size: 14px; -fx-border-color: #E2E8F0; -fx-border-width: 1; -fx-border-radius: 16 16 16 0;");
+                lblHeader.setMaxWidth(420);
+                lblHeader.setWrapText(true);
+                contentBox.getChildren().add(lblHeader);
             }
-            if (!imagePane.getChildren().isEmpty()) {
-                contentBox.getChildren().add(imagePane);
+
+            // Setiap DetailItem: teks detail diikuti fotonya (jika ada)
+            for (DetailItem item : detailItems) {
+                VBox itemBox = new VBox(6);
+
+                // Teks detail busana
+                Label lblDetail = new Label(item.getTeks());
+                lblDetail.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #1E293B; -fx-padding: 12 16; -fx-background-radius: 12; -fx-font-size: 13px; -fx-border-color: #E2E8F0; -fx-border-width: 1; -fx-border-radius: 12;");
+                lblDetail.setMaxWidth(420);
+                lblDetail.setWrapText(true);
+                itemBox.getChildren().add(lblDetail);
+
+                // Foto busana (tepat di bawah teks detailnya)
+                if (item.hasImage()) {
+                    try {
+                        java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(item.getImageData());
+                        javafx.scene.image.Image img = new javafx.scene.image.Image(bais, 280, 400, true, true);
+                        javafx.scene.image.ImageView imgView = new javafx.scene.image.ImageView(img);
+                        imgView.setFitWidth(280);
+                        imgView.setFitHeight(400);
+                        imgView.setPreserveRatio(true);
+                        imgView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);");
+                        imgView.setCursor(javafx.scene.Cursor.HAND);
+                        itemBox.getChildren().add(imgView);
+                    } catch (Exception e) {
+                        System.err.println("Gagal memuat gambar dari BLOB data: " + e.getMessage());
+                    }
+                }
+
+                contentBox.getChildren().add(itemBox);
+            }
+
+        } else {
+            // ── Mode B: render lama — teks tunggal diikuti semua gambar di bawahnya ──
+            Label lblPesan = new Label(teks);
+            lblPesan.setStyle("-fx-background-color: #FFFFFF; -fx-text-fill: #1E293B; -fx-padding: 14 18; -fx-background-radius: 16 16 16 0; -fx-font-size: 14px; -fx-border-color: #E2E8F0; -fx-border-width: 1; -fx-border-radius: 16 16 16 0;");
+            lblPesan.setMaxWidth(420);
+            lblPesan.setWrapText(true);
+            contentBox.getChildren().add(lblPesan);
+
+            // Jika terdapat gambar, tampilkan via ImageView dalam FlowPane
+            if (images != null && !images.isEmpty()) {
+                FlowPane imagePane = new FlowPane();
+                imagePane.setHgap(8);
+                imagePane.setVgap(8);
+                imagePane.setMaxWidth(420);
+
+                for (byte[] imgData : images) {
+                    try {
+                        java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(imgData);
+                        javafx.scene.image.Image img = new javafx.scene.image.Image(bais, 280, 400, true, true);
+                        javafx.scene.image.ImageView imgView = new javafx.scene.image.ImageView(img);
+                        imgView.setFitWidth(280);
+                        imgView.setFitHeight(400);
+                        imgView.setPreserveRatio(true);
+                        imgView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);");
+                        imgView.setCursor(javafx.scene.Cursor.HAND);
+                        imagePane.getChildren().add(imgView);
+                    } catch (Exception e) {
+                        System.err.println("Gagal memuat gambar dari BLOB data");
+                    }
+                }
+                if (!imagePane.getChildren().isEmpty()) {
+                    contentBox.getChildren().add(imagePane);
+                }
             }
         }
 
